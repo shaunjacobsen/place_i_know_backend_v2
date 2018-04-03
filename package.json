@@ -1,0 +1,19 @@
+{
+  "name": "place-i-know-backend",
+  "version": "0.1.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shaunjacobsen/place_i_know_backend_v2.git"
+  },
+  "author": "Shaun Jacobsen",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/shaunjacobsen/place_i_know_backend_v2/issues"
+  },
+  "homepage": "https://github.com/shaunjacobsen/place_i_know_backend_v2#readme"
+}
