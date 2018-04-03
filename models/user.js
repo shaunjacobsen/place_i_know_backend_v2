@@ -101,4 +101,40 @@ User.prototype.generateAuthToken = async function() {
   return session.token;
 }
 
+const generatePassword = (plaintext) => {
+  return new Promise((resolve, reject) => {
+    bcrypt.genSalt(10, (err, salt) => {
+      if (err) {
+        reject(err);
+      }
+      
+      bcrypt.hash(plaintext, salt, (err, hash) => {
+        if (!err) {
+          resolve(hash);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  });
+}
+
+User.afterValidate((user, options) => {
+  if (user.changed('password')) {
+    return generatePassword(user.password).then((encryptedPassword) => {
+      user.password = encryptedPassword;
+    }).catch(err => {
+      if (err) console.log(err);
+    });
+  }
+});
+
+User.beforeCreate((user, options) => {
+  return generatePassword(user.password).then((encryptedPassword) => {
+    user.password = encryptedPassword;
+  }).catch(err => {
+    if (err) console.log(err);
+  });
+});
+
 module.exports = { User };
