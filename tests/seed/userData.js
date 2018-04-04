@@ -56,5 +56,4 @@ const truncateTokens = () => {
   });
 }
 
-
 module.exports = { users, populateUsers, destroyUsers };

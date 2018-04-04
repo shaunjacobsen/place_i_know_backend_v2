@@ -17,4 +17,13 @@ module.exports = (app) => {
       res.status(400).send();
     }
   });
+
+  app.post('/signout', authenticate, async (req, res) => {
+    try {
+      await User.invalidateToken(req.token);
+      res.status(200).send();
+    } catch (error) {
+      res.status(400).send();
+    }
+  });
 }

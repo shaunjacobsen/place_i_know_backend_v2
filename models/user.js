@@ -95,6 +95,14 @@ User.findByCredentials = function(email, password) {
   });
 }
 
+User.invalidateToken = function(token) {
+  SessionKey.destroy({ where: { token: token } }).then(() => {
+    return Promise.resolve();
+  }).catch((e) => {
+    return Promise.reject(e);
+  })
+}
+
 User.prototype.generateAuthToken = async function() {
   let token = jwt.sign({ _id: this.profile_id, access: 'auth' }, process.env.JWT_SECRET).toString();
   let session = await SessionKey.create({

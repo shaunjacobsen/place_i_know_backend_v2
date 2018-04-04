@@ -3,6 +3,7 @@ const expect = require('expect');
 const jwt = require('jsonwebtoken');
 
 const { app } = require('./../app');
+const { SessionKey } = require('./../models/sessionKey');
 const { users, populateUsers, destroyUsers } = require('./seed/userData');
 const { allImages, populateImages, destroyImages } = require('./seed/imageData');
 
@@ -22,6 +23,7 @@ describe('POST /signin', function() {
       password: users[0].password,
     });
     expect(res.statusCode).toBe(200);
+    expect(res.headers).toHaveProperty('x-auth');
   });
 
   it.skip('Should return the correct JSON web token', async () => {
@@ -49,6 +51,44 @@ describe('POST /signin', function() {
       password: 'wrongpassword',
     });
     expect(res.statusCode).toBe(400);
+  });
+
+});
+
+describe('POST /signout', function() {
+
+  beforeEach(() => {
+    return populateUsers(users);
+  });
+
+  afterEach(() => {
+    return destroyUsers();
+  });
+
+  it('Should return 200 when successfully signed out', async () => {
+    const signInRequest = await request(app).post('/signin').send({
+      email: users[0].email,
+      password: users[0].password,
+    });
+    let assignedToken = signInRequest.headers['x-auth'];
+    const res = await request(app).post('/signout').set('x-auth', assignedToken);
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('Should remove the token from the database when successfully signed out', async (done) => {
+    const signInRequest = await request(app).post('/signin').send({
+      email: users[0].email,
+      password: users[0].password,
+    });
+    let assignedToken = signInRequest.headers['x-auth'];
+    request(app).post('/signout').set('x-auth', assignedToken).then((res) => {
+      SessionKey.findAndCountAll({ where: { token: assignedToken } }).then((result) => {
+        expect(res.statusCode).toBe(200);
+        expect(result.count).toBe(0);
+        done();
+      });
+      
+    });
   });
 
 });
