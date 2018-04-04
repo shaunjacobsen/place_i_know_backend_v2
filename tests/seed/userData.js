@@ -27,16 +27,33 @@ const adminUser = {
 
 const users = [adminUser];
 
-const insertUsers = async (users) => {
+const populateUsers = async (users) => {
   try {
-    await User.destroy({ truncate: true });
-    await SessionKey.destroy({ truncate: true });
     await User.bulkCreate(users, {
       individualHooks: true,
     });
   } catch (error) {
-    console.log(error);
+    
   }
 }
 
-module.exports = { users, insertUsers };
+const destroyUsers = async () => {
+  try {
+    await User.destroy({ truncate: true });
+    await SessionKey.destroy({ truncate: true });
+  } catch (error) {
+    
+  }
+}
+
+const truncateTokens = () => {
+  return new Promise((resolve, reject) => {
+    SessionKey.destroy({ truncate: true }).then(() => {
+      resolve();
+    }).catch((e) => {
+      reject(e);
+    });
+  });
+}
+
+module.exports = { users, populateUsers, destroyUsers };

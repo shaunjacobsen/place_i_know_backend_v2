@@ -3,12 +3,16 @@ const expect = require('expect');
 const jwt = require('jsonwebtoken');
 
 const { app } = require('./../app');
-const { users, insertUsers } = require('./seed/userData');
+const { users, populateUsers, destroyUsers } = require('./seed/userData');
 
 describe('POST /signin', function() {
 
-  beforeEach(() => {
-    return insertUsers(users);
+  beforeAll(() => {
+    return populateUsers(users);
+  });
+
+  afterAll(() => {
+    return destroyUsers();
   });
 
   it('Should sign in a user with the correct credentials', async () => {
@@ -51,7 +55,11 @@ describe('POST /signin', function() {
 describe('GET /user', function() {
 
   beforeAll(() => {
-    return insertUsers(users);
+    return populateUsers(users);
+  });
+
+  afterAll(() => {
+    return destroyUsers();
   });
 
   it('Should show the current user\'s information', async (done) => {

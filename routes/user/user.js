@@ -5,7 +5,6 @@ const { User } = require('./../../models/user');
 
 module.exports = (app) => {
   app.get('/user', authenticate, (req, res) => {
-    console.log(req.user);
     res.json(req.user);
   });
 
