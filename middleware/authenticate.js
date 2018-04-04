@@ -13,12 +13,16 @@ let authenticate = (req, res, next) => {
         return Promise.reject();
       }
 
-      User.findById(result.user_id).then((user) => {
-        req.userId = user.profile_id;
+      User.findById(result.user_id, {
+        attributes: ['email', 'first_name', 'last_name', 'image_id', 'profile_id']
+      }).then((user) => {
+        req.user = user;
         req.token = token;
+
+        next();
       });
       
-      next();
+      
     })
     .catch((err) => {
       res.status(401).send();

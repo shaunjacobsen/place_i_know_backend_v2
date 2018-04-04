@@ -4,13 +4,9 @@ const { authenticate } = require('./../../middleware/authenticate');
 const { User } = require('./../../models/user');
 
 module.exports = (app) => {
-  app.get('/users', authenticate, async (req, res) => {
-    try {
-      let response = await User.findAll();
-      res.json(response);
-    } catch (error) {
-     console.log(error); 
-    }
+  app.get('/user', authenticate, (req, res) => {
+    console.log(req.user);
+    res.json(req.user);
   });
 
   app.post('/signin', async (req, res) => {
