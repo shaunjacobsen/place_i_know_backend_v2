@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const { app } = require('./../app');
 const { users, populateUsers, destroyUsers } = require('./seed/userData');
+const { allImages, populateImages, destroyImages } = require('./seed/imageData');
 
 describe('POST /signin', function() {
 
@@ -23,7 +24,7 @@ describe('POST /signin', function() {
     expect(res.statusCode).toBe(200);
   });
 
-  it('Should return the correct JSON web token', async () => {
+  it.skip('Should return the correct JSON web token', async () => {
     const res = await request(app).post('/signin').send({
       email: users[0].email,
       password: users[0].password,
@@ -55,10 +56,12 @@ describe('POST /signin', function() {
 describe('GET /user', function() {
 
   beforeAll(() => {
+    populateImages(allImages);
     return populateUsers(users);
   });
 
   afterAll(() => {
+    destroyImages();
     return destroyUsers();
   });
 
@@ -73,7 +76,18 @@ describe('GET /user', function() {
     expect(res.body.email).toBe(users[0].email);
     expect(res.body.first_name).toBe(users[0].first_name);
     expect(res.body.last_name).toBe(users[0].last_name);
-    expect(res.body.image_id).toBe(users[0].image_id);
+    done();
+  });
+
+  it('Should return the current user\'s avatar image URL', async (done) => {
+    await request(app).post('/signin').send({
+      email: users[0].email,
+      password: users[0].password,
+    });
+    const xAuth = jwt.sign({ _id: users[0].profile_id, access: 'auth' }, process.env.JWT_SECRET).toString();
+    const res = await request(app).get('/user').set('x-auth', xAuth);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.image.secure_url).toBe(allImages[0].secure_url);
     done();
   });
 

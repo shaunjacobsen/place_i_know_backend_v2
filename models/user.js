@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 
 const { sequelize } = require('./../db/pg');
 const { SessionKey } = require('./sessionKey');
+const { Image } = require('./image');
 
 const User = sequelize.define('profile', {
   profile_id: {
@@ -61,15 +62,18 @@ const User = sequelize.define('profile', {
   emergency_contact: {
     type: Sequelize.STRING,
   },
-  image_id: {
-    type: Sequelize.INTEGER,
-  },
+  // image_id: {
+  //   type: Sequelize.INTEGER,
+  // },
   last_updated: {
     type: Sequelize.TIME,
   },
 }, {
   timestamps: false,
 });
+
+User.image_id = User.belongsTo(Image, { foreignKey: 'image_id', targetKey: 'image_id' });
+User.hasMany(SessionKey, { foreignKey: 'user_id' });
 
 User.findByCredentials = function(email, password) {
   return this.findOne({ where: { email: email } }).then((user) => {

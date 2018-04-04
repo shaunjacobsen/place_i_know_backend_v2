@@ -1,5 +1,8 @@
+const Sequelize = require('sequelize');
+
 const { User } = require('./../models/user');
 const { SessionKey } = require('./../models/sessionKey');
+const { Image } = require('./../models/image');
 
 let authenticate = (req, res, next) => {
   let token = req.header('x-auth');
@@ -14,7 +17,11 @@ let authenticate = (req, res, next) => {
       }
 
       User.findById(result.user_id, {
-        attributes: ['email', 'first_name', 'last_name', 'image_id', 'profile_id']
+        attributes: ['email', 'first_name', 'last_name', 'profile_id'],
+        include: [{
+          model: Image,
+          attributes: ['secure_url']
+        }]
       }).then((user) => {
         req.user = user;
         req.token = token;

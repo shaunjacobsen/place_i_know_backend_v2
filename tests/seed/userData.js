@@ -22,7 +22,7 @@ const adminUser = {
   passport_name: 'Shaun Jacobsen',
   password: 'password123',
   emergency_contact: 'Unlisted',
-  image_id: 82
+  image_id: 1
 }
 
 const users = [adminUser];
@@ -55,5 +55,6 @@ const truncateTokens = () => {
     });
   });
 }
+
 
 module.exports = { users, populateUsers, destroyUsers };
