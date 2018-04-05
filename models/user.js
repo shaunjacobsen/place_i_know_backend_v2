@@ -62,9 +62,9 @@ const User = sequelize.define('profile', {
   emergency_contact: {
     type: Sequelize.STRING,
   },
-  // image_id: {
-  //   type: Sequelize.INTEGER,
-  // },
+  role: {
+    type: Sequelize.STRING,
+  },
   last_updated: {
     type: Sequelize.TIME,
   },

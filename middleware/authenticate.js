@@ -4,8 +4,8 @@ const { User } = require('./../models/user');
 const { SessionKey } = require('./../models/sessionKey');
 const { Image } = require('./../models/image');
 
-let authenticate = (req, res, next) => {
-  let token = req.header('x-auth');
+const authenticate = (req, res, next) => {
+  const token = req.header('x-auth');
 
   SessionKey.findOne({
     where: {
@@ -17,7 +17,7 @@ let authenticate = (req, res, next) => {
       }
 
       User.findById(result.user_id, {
-        attributes: ['email', 'first_name', 'last_name', 'profile_id'],
+        attributes: ['email', 'first_name', 'last_name', 'profile_id', 'role'],
         include: [{
           model: Image,
           attributes: ['secure_url']
@@ -36,4 +36,18 @@ let authenticate = (req, res, next) => {
     });
 };
 
-module.exports = { authenticate };
+const isAllowed = (role, rolesAllowed) => {
+  return rolesAllowed.indexOf(role) > -1;
+}
+
+const permit = (...allowed) => {
+  return (req, res, next) => {
+    if (req.user && isAllowed(req.user.role, allowed)) {
+      next();
+    } else {
+      res.status(403).json({ message: 'Forbidden' });
+    }
+   }
+}
+
+module.exports = { authenticate, permit };

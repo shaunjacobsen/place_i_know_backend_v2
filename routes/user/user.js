@@ -1,10 +1,10 @@
 const express = require('express');
 
-const { authenticate } = require('./../../middleware/authenticate');
+const { authenticate, permit } = require('./../../middleware/authenticate');
 const { User } = require('./../../models/user');
 
 module.exports = (app) => {
-  app.get('/user', authenticate, (req, res) => {
+  app.get('/user', authenticate, permit('admin', 'user'), (req, res) => {
     res.json(req.user);
   });
 

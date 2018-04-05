@@ -22,7 +22,8 @@ const adminUser = {
   passport_name: 'Shaun Jacobsen',
   password: 'password123',
   emergency_contact: 'Unlisted',
-  image_id: 1
+  image_id: 1,
+  role: 'admin',
 }
 
 const userTwo = {
@@ -43,7 +44,8 @@ const userTwo = {
   passport_name: 'Ilana Wexler',
   password: 'yaskween123',
   emergency_contact: 'Unlisted',
-  image_id: 1
+  image_id: 1,
+  role: 'user',
 }
 
 const users = [adminUser, userTwo];
