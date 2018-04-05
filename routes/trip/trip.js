@@ -24,4 +24,34 @@ module.exports = (app) => {
     })
     .catch(e => res.status(400).json({ errors: e.errors }));
   });
+
+  app.patch('/admin/trip/:tripId', authenticate, permit('admin'), (req, res) => {
+    Trip
+    .findById(req.params.tripId)
+    .then((trip) => {
+      trip.update({
+        title: req.body.title,
+        start_date: req.body.start_date,
+        end_date: req.body.end_date,
+        attendees: req.body.attendees,
+      },{ 
+        fields: Object.keys(req.body)
+      }).then((updatedTrip) => {
+        res.status(200).json(updatedTrip);
+      }).catch((e) => res.status(400).json({ errors: e }));
+    })
+    .catch((e) => res.status(404).json({ errors: e }));
+  });
+
+  app.delete('/admin/trip/:tripId', authenticate, permit('admin'), (req, res) => {
+    Trip
+    .findById(req.params.tripId)
+    .then((trip) => {
+      trip
+      .destroy()
+      .then((numRecordsDestroyed) => res.status(200).send())
+      .catch((e) => res.status(400).json({ errors: e }));
+    })
+    .catch((e) => res.status(404).send());
+  });
 }
