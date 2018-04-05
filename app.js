@@ -10,6 +10,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 require('./routes/user/user')(app);
 require('./routes/trip/trip')(app);
+require('./routes/itinerary/itinerary')(app);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(process.env.PORT, () => {

@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 
 const { sequelize } = require('./../db/pg');
+const { Itinerary } = require('./itinerary');
 
 const Trip = sequelize.define('trip', {
   trip_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -16,14 +17,25 @@ const Trip = sequelize.define('trip', {
   timestamps: false,
 });
 
+Trip.hasMany(Itinerary, { foreignKey: 'trip_id' });
+
 Trip.findByUser = function(userId) {
-  return this.findAll({ where: { attendees: { $contains: [userId] } } }).then((trips) => {
+  return this.findAll({
+    where: {
+      attendees: {
+        $contains: [userId]
+      }
+    },
+    include: [{
+      model: Itinerary
+    }]
+  }).then((trips) => {
     if (!trips) {
       return Promise.reject();
     }
     return Promise.resolve(trips);
-  }).catch(() => {
-    console.log('error');
+  }).catch((e) => {
+    console.log('error', e);
   });
 }
 
