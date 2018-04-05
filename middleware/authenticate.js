@@ -16,7 +16,7 @@ const authenticate = (req, res, next) => {
         return Promise.reject();
       }
 
-      User.findById(result.user_id, {
+      return User.findById(result.user_id, {
         attributes: ['email', 'first_name', 'last_name', 'profile_id', 'role'],
         include: [{
           model: Image,
