@@ -33,4 +33,34 @@ Itinerary.prototype.isUserAuthorizedToView = async function(user) {
   
 }
 
+Itinerary.afterValidate(async (itinerary, options) => {
+  let errors = [];
+  let associatedTrip = await sequelize.models.trip.findById(itinerary.trip_id);
+  if (associatedTrip.start_date > itinerary.start_date) {
+    errors.push({
+      offender: 'start_date',
+      message: 'Itinerary start date must be on or after the trip start date',
+    });
+  }
+  if (itinerary.end_date > associatedTrip.end_date) {
+    errors.push({
+      offender: 'end_date',
+      message: 'Itinerary end date must be on or before the trip end date',
+    });
+  }
+  if (itinerary.end_date < itinerary.start_date) {
+    errors.push({
+      offender: 'end_date',
+      message: 'Itinerary end date must be after the start date',
+    });
+  }
+
+  if (errors.length > 0) {
+    return Promise.reject(errors);
+  }
+
+  return Promise.resolve();
+  
+});
+
 module.exports = { Itinerary };
