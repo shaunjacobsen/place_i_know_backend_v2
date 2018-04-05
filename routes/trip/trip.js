@@ -49,7 +49,7 @@ module.exports = (app) => {
     .then((trip) => {
       trip
       .destroy()
-      .then((numRecordsDestroyed) => res.status(200).send())
+      .then(() => res.status(200).send())
       .catch((e) => res.status(400).json({ errors: e }));
     })
     .catch((e) => res.status(404).send());
