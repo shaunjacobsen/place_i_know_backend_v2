@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 
 const { sequelize } = require('./../db/pg');
 const { Trip } = require('./trip');
+const { Event } = require('./event');
 
 const Itinerary = sequelize.define('itinerary', {
   itinerary_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -17,6 +18,8 @@ const Itinerary = sequelize.define('itinerary', {
   timestamps: false,
 });
 
+Itinerary.hasMany(Event, { foreignKey: 'itinerary_id' });
+
 Itinerary.prototype.isUserAuthorizedToView = async function(user) {
   if (user.role === 'admin') {
     return true;
@@ -30,7 +33,18 @@ Itinerary.prototype.isUserAuthorizedToView = async function(user) {
   } catch (error) {
     console.log(error); 
   }
-  
+}
+
+Itinerary.prototype.getEvents = async function() {
+  try {
+    return await sequelize.models.event.findAll({
+      where: {
+        itinerary_id: this.itinerary_id,
+      }
+    });
+  } catch (error) {
+    return error;
+  }
 }
 
 Itinerary.afterValidate(async (itinerary, options) => {
