@@ -24,6 +24,7 @@ const authenticate = (req, res, next) => {
         }]
       }).then((user) => {
         req.user = user;
+        req.user._id = user.profile_id;
         req.token = token;
 
         next();
