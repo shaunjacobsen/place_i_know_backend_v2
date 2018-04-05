@@ -25,7 +25,28 @@ const adminUser = {
   image_id: 1
 }
 
-const users = [adminUser];
+const userTwo = {
+  profile_id: 2,
+  first_name: 'Ilana',
+  last_name: 'Wexler',
+  email: 'ilana@gmail.com',
+  address1: '566 Gowanus St',
+  address2: '3A',
+  city: 'Brooklyn',
+  state: 'NY',
+  postal: '11221',
+  country: 'USA',
+  phone: ' +7180001234',
+  phone_abroad: '+7180001234',
+  gender: 'F',
+  birthdate: '1985-01-06',
+  passport_name: 'Ilana Wexler',
+  password: 'yaskween123',
+  emergency_contact: 'Unlisted',
+  image_id: 1
+}
+
+const users = [adminUser, userTwo];
 
 const populateUsers = async (users) => {
   try {
