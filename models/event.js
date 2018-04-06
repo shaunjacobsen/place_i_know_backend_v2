@@ -31,35 +31,36 @@ const Event = sequelize.define('event', {
 
 Event.image_id = Event.belongsTo(Image, { foreignKey: 'image_id', targetKey: 'image_id' });
 
-// TODO: Time validations
-// Event.afterValidate(async (event, options) => {
-//   let errors = [];
-//   let associatedItinerary = await sequelize.models.itinerary.findById(event.itinerary_id);
-//   if (associatedItinerary.start_date > event.start_time) {
-//     errors.push({
-//       offender: 'start_time',
-//       message: 'Event start time must be on or after the itinerary start date',
-//     });
-//   }
-//   if (event.end_time > associatedTrip.end_date) {
-//     errors.push({
-//       offender: 'end_time',
-//       message: 'Event end time must be on or before the itinerary end date',
-//     });
-//   }
-//   if (event.end_time < event.start_time) {
-//     errors.push({
-//       offender: 'end_time',
-//       message: 'Event end time must be after the start time',
-//     });
-//   }
+Event.afterValidate(async (event, options) => {
+  let errors = [];
+  let associatedItinerary = await sequelize.models.itinerary.findById(event.itinerary_id);
+  const eventStartTime = new Date(event.start_time);
+  const eventEndTime = new Date(event.end_time);
+  if (associatedItinerary.start_date > eventStartTime) {
+    errors.push({
+      offender: 'start_time',
+      message: 'Event start time must be on or after the itinerary start date',
+    });
+  }
+  if (eventEndTime > associatedItinerary.end_date) {
+    errors.push({
+      offender: 'end_time',
+      message: 'Event end time must be on or before the itinerary end date',
+    });
+  }
+  if (eventEndTime < eventStartTime) {
+    errors.push({
+      offender: 'end_time',
+      message: 'Event end time must be after the start time',
+    });
+  }
 
-//   if (errors.length > 0) {
-//     return Promise.reject(errors);
-//   }
+  if (errors.length > 0) {
+    return Promise.reject(errors);
+  }
 
-//   return Promise.resolve();
+  return Promise.resolve();
   
-// });
+});
 
 module.exports = { Event };
