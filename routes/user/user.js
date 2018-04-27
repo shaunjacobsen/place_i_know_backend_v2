@@ -3,7 +3,7 @@ const express = require('express');
 const { authenticate, permit } = require('./../../middleware/authenticate');
 const { User } = require('./../../models/user');
 
-module.exports = (app) => {
+module.exports = app => {
   app.get('/user', authenticate, permit('admin', 'user'), (req, res) => {
     res.json(req.user);
   });
@@ -12,7 +12,15 @@ module.exports = (app) => {
     try {
       const user = await User.findByCredentials(req.body.email, req.body.password);
       const token = await user.generateAuthToken();
-      res.header('x-auth', token).send(user);
+      const userDetails = {
+        profileId: user.profile_id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        email: user.email,
+        avatar: await user.getAvatarUrl(),
+        role: user.role,
+      };
+      res.header('x-auth', token).send(userDetails);
     } catch (error) {
       res.status(400).send();
     }
@@ -26,4 +34,4 @@ module.exports = (app) => {
       res.status(400).send();
     }
   });
-}
+};
