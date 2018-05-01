@@ -4,19 +4,22 @@ const { sequelize } = require('./../db/pg');
 const { Trip } = require('./trip');
 const { Event } = require('./event');
 
-const Itinerary = sequelize.define('itinerary', {
-  itinerary_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-  title: { type: Sequelize.STRING, allowNull: false },
-  start_date: { type: Sequelize.DATE, allowNull: false },
-  end_date: { type: Sequelize.DATE, allowNull: false },
-  itineraryAttributes: { field: 'attributes', type: Sequelize.JSON, allowNull: true },
-  status: { type: Sequelize.STRING },
-  created: { type: Sequelize.TIME },
-  created_by: { type: Sequelize.INTEGER },
-},
-{
-  timestamps: false,
-});
+const Itinerary = sequelize.define(
+  'itinerary',
+  {
+    itinerary_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    title: { type: Sequelize.STRING, allowNull: false },
+    start_date: { type: Sequelize.DATE, allowNull: false },
+    end_date: { type: Sequelize.DATE, allowNull: false },
+    itineraryAttributes: { field: 'attributes', type: Sequelize.JSON, allowNull: true },
+    status: { type: Sequelize.STRING },
+    created: { type: Sequelize.TIME },
+    created_by: { type: Sequelize.INTEGER },
+  },
+  {
+    timestamps: false,
+  }
+);
 
 Itinerary.hasMany(Event, { foreignKey: 'itinerary_id' });
 
@@ -31,21 +34,38 @@ Itinerary.prototype.isUserAuthorizedToView = async function(user) {
       return true;
     }
   } catch (error) {
-    console.log(error); 
+    console.log(error);
   }
-}
+};
 
-Itinerary.prototype.getEvents = async function() {
+Itinerary.prototype.getItineraryEventsListForDate = async function(date) {
   try {
-    return await sequelize.models.event.findAll({
+    return await sequelize.models.day.findAll({
       where: {
         itinerary_id: this.itinerary_id,
-      }
+        date: date,
+      },
+      order: [['date', 'ASC'], ['sort_index', 'ASC']],
     });
   } catch (error) {
     return error;
   }
-}
+};
+
+Itinerary.prototype.getDateRangeOfItineraryEvents = async function() {
+  try {
+    return await sequelize.models.day.findAll({
+      attributes: ['date'],
+      where: {
+        itinerary_id: this.itinerary_id,
+      },
+      group: ['date'],
+      order: [['date', 'ASC']],
+    });
+  } catch (error) {
+    return error;
+  }
+};
 
 Itinerary.afterValidate(async (itinerary, options) => {
   let errors = [];
@@ -74,7 +94,6 @@ Itinerary.afterValidate(async (itinerary, options) => {
   }
 
   return Promise.resolve();
-  
 });
 
 module.exports = { Itinerary };

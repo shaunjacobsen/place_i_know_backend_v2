@@ -54,4 +54,18 @@ module.exports = (app) => {
     })
     .catch((e) => res.status(404).send());
   });
+
+  app.get('/trip/:id/attendees', authenticate, permit('user', 'admin'), async (req, res) => {
+    try {
+      let trip = await Trip.findById(req.params.id);
+      if (trip.isUserAuthorizedToView(req.user)) {
+        const attendees = await trip.listAttendees();
+        res.json(attendees);
+      } else {
+        res.status(401).send();
+      }
+    } catch (e) {
+      res.status(400).json(error);
+    }
+  });
 }

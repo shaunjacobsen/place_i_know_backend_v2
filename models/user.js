@@ -101,13 +101,17 @@ User.findByCredentials = function(email, password) {
     });
 };
 
-User.invalidateToken = function(token) {
-  SessionKey.destroy({ where: { token: token } })
-    .then(() => {
-      return Promise.resolve();
+User.findByToken = function(token) {
+  return SessionKey.findOne({ where: { token } })
+    .then(result => {
+      console.log('result', result);
+      if (!!result) {
+        return Promise.resolve(result);
+      }
+      return Promise.reject();
     })
-    .catch(e => {
-      return Promise.reject(e);
+    .catch(() => {
+      return Promise.reject();
     });
 };
 
@@ -119,6 +123,7 @@ User.prototype.generateAuthToken = async function() {
     token: token,
     user_id: this.profile_id,
     valid: true,
+    expires: new Date(new Date().getTime() + 1209600000), // 2 weeks
   });
   return session.token;
 };
