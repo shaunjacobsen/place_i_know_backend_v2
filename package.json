@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "NODE_ENV=test jest --watch --runInBand",
-    "dev": "nodemon ./app.js"
+    "dev": "nodemon ./app.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",

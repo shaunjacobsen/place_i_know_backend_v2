@@ -53,7 +53,7 @@ module.exports = app => {
         let itinerary = await Itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
           const events = await itinerary.getItineraryEventsListForDate(req.query.date);
-          res.json(events);
+          res.json(events[0]);
         } else {
           res.status(401).send();
         }

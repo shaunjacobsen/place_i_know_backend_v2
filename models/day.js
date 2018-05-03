@@ -21,5 +21,4 @@ const Day = sequelize.define(
   }
 );
 
-
 module.exports = { Day };

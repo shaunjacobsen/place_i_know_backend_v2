@@ -38,7 +38,7 @@ Event.image_id = Event.belongsTo(Image, {
   targetKey: 'image_id',
 });
 
-Event.hasOne(Day, { foreignKey: 'itinerary_id' });
+Event.hasOne(Day, { foreignKey: 'event_id' });
 
 Event.afterValidate(async (event, options) => {
   let errors = [];
