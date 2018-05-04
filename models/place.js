@@ -30,6 +30,6 @@ const Place = sequelize.define('place', {
   timestamps: false,
 });
 
-Place.image_id = Place.belongsTo(Image, { foreignKey: 'image_id', targetKey: 'image_id' });
+Place.belongsTo(Image, { foreignKey: 'image_id', targetKey: 'image_id' });
 
 module.exports = { Place };

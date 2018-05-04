@@ -33,7 +33,7 @@ const Event = sequelize.define(
   }
 );
 
-Event.image_id = Event.belongsTo(Image, {
+Event.belongsTo(Image, {
   foreignKey: 'image_id',
   targetKey: 'image_id',
 });

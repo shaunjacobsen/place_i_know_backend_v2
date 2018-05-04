@@ -1,8 +1,11 @@
 const Sequelize = require('sequelize');
 
 const { sequelize } = require('./../db/pg');
-const { Itinerary } = require('./itinerary');
+const { Accommodation } = require('./accommodation');
+const { AccommodationGroup } = require('./accommodationGroup');
 const { Image } = require('./image');
+const { Itinerary } = require('./itinerary');
+const { Place } = require('./place');
 const { User } = require('./user');
 
 const Trip = sequelize.define(
@@ -78,6 +81,86 @@ Trip.prototype.listAttendees = async function() {
       ],
     });
     return attendees;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+Trip.prototype.listAccommodations = async function() {
+  try {
+    const accommodations = await Accommodation.findAll({
+      attributes: [
+        'accommodation_id',
+        'trip_id',
+        'place_id',
+        'charge_id',
+        'star_rating',
+        'check_in',
+        'check_out',
+        'guests',
+        'rooms',
+        'beds',
+        'breakfast_included',
+        'subtotal',
+        'taxes',
+        'total',
+        'status',
+        'notes',
+      ],
+      where: {
+        trip_id: this.trip_id,
+      },
+      include: [
+        {
+          model: Place,
+          include: [{ model: Image, attributes: ['secure_url'] }],
+        },
+      ],
+    });
+    return accommodations;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+Trip.prototype.listAccommodationsWithGroups = async function() {
+  try {
+    const accommodationGroups = await AccommodationGroup.findAll({
+      where: {
+        trip_id: this.trip_id,
+      },
+      include: [
+        {
+          model: Accommodation,
+          attributes: [
+            'accommodation_id',
+            'trip_id',
+            'place_id',
+            'charge_id',
+            'star_rating',
+            'check_in',
+            'check_out',
+            'guests',
+            'rooms',
+            'beds',
+            'breakfast_included',
+            'subtotal',
+            'taxes',
+            'total',
+            'status',
+            'notes',
+          ],
+          order: [['check_in', 'ASC'], ['total', 'ASC']],
+          include: [
+            {
+              model: Place,
+              include: [{ model: Image, attributes: ['secure_url'] }],
+            },
+          ],
+        },
+      ],
+    });
+    return accommodationGroups;
   } catch (e) {
     console.log(e);
   }
