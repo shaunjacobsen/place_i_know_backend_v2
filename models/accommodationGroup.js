@@ -15,6 +15,8 @@ const AccommodationGroup = sequelize.define(
     trip_id: { type: Sequelize.INTEGER },
     title: { type: Sequelize.STRING },
     status: { type: Sequelize.STRING },
+    start_date: { type: Sequelize.DATE },
+    end_date: { type: Sequelize.DATE },
     created: { type: Sequelize.TIME },
     created_by: { type: Sequelize.INTEGER },
   },

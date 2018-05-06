@@ -2,6 +2,8 @@ const express = require('express');
 
 const { authenticate, permit } = require('./../../middleware/authenticate');
 const { Itinerary } = require('./../../models/itinerary');
+const { Day } = require('./../../models/day');
+const { reduceDaysToArray } = require('./../../functions/itinerary');
 
 module.exports = app => {
   app.get(
@@ -12,7 +14,35 @@ module.exports = app => {
       try {
         let itinerary = await Itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
-          res.json(itinerary);
+          data = {
+            trip_id: itinerary.trip_id,
+            itinerary_id: itinerary.itinerary_id,
+            start_date: itinerary.start_date,
+            end_date: itinerary.end_date,
+            days: reduceDaysToArray(await itinerary.getListOfDays()),
+          };
+          res.json(data);
+        } else {
+          res.status(401).send();
+        }
+      } catch (error) {
+        res.status(400).json(error);
+      }
+    }
+  );
+
+  app.get(
+    '/itinerary/:itineraryId/days',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        let itinerary = await Itinerary.findById(req.params.itineraryId);
+        if (await itinerary.isUserAuthorizedToView(req.user)) {
+          let data = await Day.findAll({
+            where: { itinerary_id: itinerary.itinerary_id },
+          });
+          res.json(data);
         } else {
           res.status(401).send();
         }
@@ -52,8 +82,8 @@ module.exports = app => {
       try {
         let itinerary = await Itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
-          const events = await itinerary.getItineraryEventsListForDate(req.query.date);
-          res.json(events[0]);
+          const events = await itinerary.getListOfEvents();
+          res.json(events);
         } else {
           res.status(401).send();
         }

@@ -25,7 +25,6 @@ const Trip = sequelize.define(
   }
 );
 
-Trip.hasMany(Itinerary, { foreignKey: 'trip_id' });
 Trip.image_id = Trip.belongsTo(Image, { foreignKey: 'image_id', targetKey: 'image_id' });
 
 Trip.findByUser = function(userId) {
@@ -36,7 +35,6 @@ Trip.findByUser = function(userId) {
       },
     },
     include: [
-      Itinerary,
       {
         model: Image,
         attributes: ['secure_url'],
@@ -86,7 +84,7 @@ Trip.prototype.listAttendees = async function() {
   }
 };
 
-Trip.prototype.listAccommodations = async function() {
+Trip.prototype.getListOfAccommodations = async function() {
   try {
     const accommodations = await Accommodation.findAll({
       attributes: [
@@ -110,12 +108,6 @@ Trip.prototype.listAccommodations = async function() {
       where: {
         trip_id: this.trip_id,
       },
-      include: [
-        {
-          model: Place,
-          include: [{ model: Image, attributes: ['secure_url'] }],
-        },
-      ],
     });
     return accommodations;
   } catch (e) {
@@ -163,6 +155,34 @@ Trip.prototype.listAccommodationsWithGroups = async function() {
     return accommodationGroups;
   } catch (e) {
     console.log(e);
+  }
+};
+
+Trip.prototype.getListOfAccommodationPlaces = async function() {
+  try {
+    return await sequelize.models.accommodation
+      .findAll({
+        attributes: ['place_id'],
+        where: {
+          trip_id: this.trip_id,
+        },
+      })
+      .map(place => {
+        return place.place_id;
+      });
+  } catch (e) {
+    return e;
+  }
+};
+
+Trip.prototype.getListOfAccommodationGroups = async function() {
+  try {
+    return await sequelize.models.accommodation_group.findAll({
+      where: { trip_id: this.trip_id },
+      include: [{ model: Accommodation, attributes: ['accommodation_id'] }],
+    });
+  } catch (e) {
+    return e;
   }
 };
 

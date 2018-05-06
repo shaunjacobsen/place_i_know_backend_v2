@@ -22,7 +22,7 @@ const Itinerary = sequelize.define(
   }
 );
 
-Itinerary.hasMany(Event, { foreignKey: 'itinerary_id' });
+Itinerary.belongsTo(Trip, { foreignKey: 'trip_id' });
 
 Itinerary.prototype.isUserAuthorizedToView = async function(user) {
   if (user.role === 'admin') {
@@ -55,6 +55,53 @@ Itinerary.prototype.getItineraryEventsListForDate = async function(date) {
     // });
   } catch (error) {
     return error;
+  }
+};
+
+Itinerary.prototype.getListOfEvents = async function() {
+  try {
+    return await sequelize.models.event.findAll({
+      where: {
+        itinerary_id: this.itinerary_id,
+      },
+      include: {
+        model: sequelize.models.image,
+        attributes: ['secure_url'],
+      },
+    });
+  } catch (e) {
+    return e;
+  }
+};
+
+Itinerary.prototype.getListOfDays = async function() {
+  try {
+    return await sequelize.models.day.findAll({
+      attributes: ['date', 'day_id'],
+      where: {
+        itinerary_id: this.itinerary_id,
+      },
+      order: [['date', 'ASC'], ['sort_index', 'ASC']],
+    });
+  } catch (e) {
+    return e;
+  }
+};
+
+Itinerary.prototype.getListOfEventPlaces = async function() {
+  try {
+    return await sequelize.models.event
+      .findAll({
+        attributes: ['places'],
+        where: {
+          itinerary_id: this.itinerary_id,
+        },
+      })
+      .map(place => {
+        return place.places[0];
+      });
+  } catch (e) {
+    return e;
   }
 };
 

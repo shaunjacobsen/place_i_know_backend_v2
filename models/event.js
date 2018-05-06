@@ -4,6 +4,7 @@ const { sequelize } = require('./../db/pg');
 const { Itinerary } = require('./itinerary');
 const { Image } = require('./image');
 const { Day } = require('./day');
+const { Place } = require('./place');
 
 const Event = sequelize.define(
   'event',
