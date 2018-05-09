@@ -45,6 +45,34 @@ const Accommodation = sequelize.define(
 
 Accommodation.belongsTo(Place, { foreignKey: 'place_id' });
 
+Accommodation.prototype.getDetailsForUser = async function(id) {
+  try {
+    const accommodations = await Accommodation.findById(id, {
+      attributes: [
+        'accommodation_id',
+        'trip_id',
+        'place_id',
+        'charge_id',
+        'star_rating',
+        'check_in',
+        'check_out',
+        'guests',
+        'rooms',
+        'beds',
+        'breakfast_included',
+        'subtotal',
+        'taxes',
+        'total',
+        'status',
+        'notes',
+      ],
+    });
+    return accommodations;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 Accommodation.prototype.markAsSelected = async function() {
   try {
     const group = await sequelize.models.accommodation_group.findOne({
