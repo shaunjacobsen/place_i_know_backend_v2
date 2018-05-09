@@ -10,6 +10,9 @@ const { Image } = require('./image');
 const { Itinerary } = require('./itinerary');
 const { Operator } = require('./operator');
 const { Place } = require('./place');
+const { Train } = require('./train');
+const { TrainLeg } = require('./trainLeg');
+const { TrainGroup } = require('./trainGroup');
 const { User } = require('./user');
 
 const Trip = sequelize.define(
@@ -226,12 +229,57 @@ Trip.prototype.getListOfFlightPlaces = async function() {
       .query(
         'SELECT "flight_legs"."departure_place_id" AS "departure_place_id", "flight_legs"."arrival_place_id" AS "arrival_place_id" FROM "flights" AS "flight" LEFT OUTER JOIN "flight_legs" AS "flight_legs" ON "flight"."flight_id" = "flight_legs"."flight_id" WHERE "flight"."trip_id" = ?;',
         {
+          type: sequelize.QueryTypes.SELECT,
           replacements: [this.trip_id],
         }
       )
-      .map(row => {
-        return row.departure_place_id;
-      });
+      .map(row => [row.departure_place_id, row.arrival_place_id]);
+  } catch (e) {
+    return e;
+  }
+};
+
+Trip.prototype.getListOfTrainGroups = async function() {
+  try {
+    return await sequelize.models.train_group.findAll({
+      where: { trip_id: this.trip_id },
+      include: [{ model: Train, attributes: ['train_id', 'status'] }],
+    });
+  } catch (e) {
+    return e;
+  }
+};
+
+Trip.prototype.getListOfTrains = async function() {
+  try {
+    return await sequelize.models.train.findAll({
+      where: { trip_id: this.trip_id },
+      include: [
+        {
+          model: TrainLeg,
+          include: [
+            { model: Operator, include: [{ model: Image, attributes: ['secure_url'] }] },
+          ],
+          order: [['departure_time', 'ASC']],
+        },
+      ],
+    });
+  } catch (e) {
+    return e;
+  }
+};
+
+Trip.prototype.getListOfTrainPlaces = async function() {
+  try {
+    return await sequelize
+      .query(
+        'SELECT "train_legs"."departure_place_id" AS "departure_place_id", "train_legs"."arrival_place_id" AS "arrival_place_id" FROM "trains" AS "train" LEFT OUTER JOIN "train_legs" ON "train"."train_id" = "train_legs"."train_id" WHERE "train"."trip_id" = ?;',
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: [this.trip_id],
+        }
+      )
+      .map(row => [row.departure_place_id, row.arrival_place_id]);
   } catch (e) {
     return e;
   }

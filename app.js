@@ -19,6 +19,7 @@ require('./routes/user/user')(app);
 require('./routes/trip/trip')(app);
 require('./routes/bookings/accommodation')(app);
 require('./routes/bookings/flight')(app);
+require('./routes/bookings/train')(app);
 require('./routes/itinerary/itinerary')(app);
 require('./routes/event/event')(app);
 require('./routes/place/place')(app);

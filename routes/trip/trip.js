@@ -7,6 +7,13 @@ const { Place } = require('./../../models/place');
 const { Trip } = require('./../../models/trip');
 const { filterAccommodationGroupData } = require('./../../functions/accommodationGroup');
 const { filterFlightGroupData } = require('./../../functions/flightGroup');
+const { filterTrainGroupData } = require('./../../functions/trainGroup');
+
+const flattenArray = arr => {
+  return arr.reduce((a, b) => {
+    return a.concat(b);
+  });
+};
 
 module.exports = app => {
   app.get('/trip', authenticate, permit('user', 'admin'), async (req, res) => {
@@ -46,9 +53,13 @@ module.exports = app => {
           let eventPlaces = await itinerary.getListOfEventPlaces();
           let accommodationPlaces = await trip.getListOfAccommodationPlaces();
           let flightPlaces = await trip.getListOfFlightPlaces();
-          let concatenatedPlaceIds = eventPlaces
-            .concat(accommodationPlaces)
-            .concat(flightPlaces);
+          let trainPlaces = await trip.getListOfTrainPlaces();
+          let concatenatedPlaceIds = eventPlaces.concat(
+            accommodationPlaces,
+            flattenArray(flightPlaces),
+            flattenArray(trainPlaces)
+          );
+
           let placesList = await Place.findAll({
             where: { place_id: { $in: concatenatedPlaceIds } },
             include: {
@@ -135,6 +146,45 @@ module.exports = app => {
         if (await trip.isUserAuthorizedToView(req.user)) {
           let flights = await trip.getListOfFlights();
           res.json(flights);
+        } else {
+          res.status(401).send();
+        }
+      } catch (error) {
+        res.status(400).json(error);
+      }
+    }
+  );
+
+  app.get(
+    '/trip/:tripId/train_groups',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        let trip = await Trip.findById(req.params.tripId);
+        if (await trip.isUserAuthorizedToView(req.user)) {
+          let trainGroups = await trip.getListOfTrainGroups();
+          const data = filterTrainGroupData(trainGroups);
+          res.json(data);
+        } else {
+          res.status(401).send();
+        }
+      } catch (error) {
+        res.status(400).json(error);
+      }
+    }
+  );
+
+  app.get(
+    '/trip/:tripId/trains',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        let trip = await Trip.findById(req.params.tripId);
+        if (await trip.isUserAuthorizedToView(req.user)) {
+          let trains = await trip.getListOfTrains();
+          res.json(trains);
         } else {
           res.status(401).send();
         }
