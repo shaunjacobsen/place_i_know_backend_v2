@@ -15,6 +15,7 @@ const FlightGroup = sequelize.define(
     trip_id: { type: Sequelize.INTEGER },
     title: { type: Sequelize.STRING },
     confirmed: { type: Sequelize.BOOLEAN, default: false },
+    sort_index: { type: Sequelize.INTEGER },
     created: { type: Sequelize.TIME },
     created_by: { type: Sequelize.INTEGER },
   },
