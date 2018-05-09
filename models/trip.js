@@ -3,8 +3,12 @@ const Sequelize = require('sequelize');
 const { sequelize } = require('./../db/pg');
 const { Accommodation } = require('./accommodation');
 const { AccommodationGroup } = require('./accommodationGroup');
+const { Flight } = require('./flight');
+const { FlightLeg } = require('./flightLeg');
+const { FlightGroup } = require('./flightGroup');
 const { Image } = require('./image');
 const { Itinerary } = require('./itinerary');
+const { Operator } = require('./operator');
 const { Place } = require('./place');
 const { User } = require('./user');
 
@@ -179,8 +183,55 @@ Trip.prototype.getListOfAccommodationGroups = async function() {
   try {
     return await sequelize.models.accommodation_group.findAll({
       where: { trip_id: this.trip_id },
-      include: [{ model: Accommodation, attributes: ['accommodation_id'] }],
+      include: [{ model: Accommodation, attributes: ['accommodation_id', 'status'] }],
     });
+  } catch (e) {
+    return e;
+  }
+};
+
+Trip.prototype.getListOfFlightGroups = async function() {
+  try {
+    return await sequelize.models.flight_group.findAll({
+      where: { trip_id: this.trip_id },
+      include: [{ model: Flight, attributes: ['flight_id', 'status'] }],
+    });
+  } catch (e) {
+    return e;
+  }
+};
+
+Trip.prototype.getListOfFlights = async function() {
+  try {
+    return await sequelize.models.flight.findAll({
+      where: { trip_id: this.trip_id },
+      include: [
+        {
+          model: FlightLeg,
+          include: [
+            { model: Operator, include: [{ model: Image, attributes: ['secure_url'] }] },
+          ],
+          order: [['departure_time', 'ASC']],
+        },
+      ],
+    });
+  } catch (e) {
+    return e;
+  }
+};
+
+Trip.prototype.getListOfFlightPlaces = async function() {
+  try {
+    return await sequelize
+      .query(
+        'SELECT "flight_legs"."departure_place_id" AS "departure_place_id", "flight_legs"."arrival_place_id" AS "arrival_place_id" FROM "flights" AS "flight" LEFT OUTER JOIN "flight_legs" AS "flight_legs" ON "flight"."flight_id" = "flight_legs"."flight_id" WHERE "flight"."trip_id" = ?;',
+        {
+          replacements: [this.trip_id],
+        }
+      )
+      .map(row => {
+        return row.departure_place_id;
+      });
   } catch (e) {
     return e;
   }

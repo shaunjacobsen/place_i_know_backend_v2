@@ -5,6 +5,8 @@ const { Image } = require('./../../models/image');
 const { Itinerary } = require('./../../models/itinerary');
 const { Place } = require('./../../models/place');
 const { Trip } = require('./../../models/trip');
+const { filterAccommodationGroupData } = require('./../../functions/accommodationGroup');
+const { filterFlightGroupData } = require('./../../functions/flightGroup');
 
 module.exports = app => {
   app.get('/trip', authenticate, permit('user', 'admin'), async (req, res) => {
@@ -43,8 +45,12 @@ module.exports = app => {
           });
           let eventPlaces = await itinerary.getListOfEventPlaces();
           let accommodationPlaces = await trip.getListOfAccommodationPlaces();
+          let flightPlaces = await trip.getListOfFlightPlaces();
+          let concatenatedPlaceIds = eventPlaces
+            .concat(accommodationPlaces)
+            .concat(flightPlaces);
           let placesList = await Place.findAll({
-            where: { place_id: { $in: eventPlaces.concat(accommodationPlaces) } },
+            where: { place_id: { $in: concatenatedPlaceIds } },
             include: {
               model: Image,
               attributes: ['secure_url'],
@@ -69,15 +75,7 @@ module.exports = app => {
         let trip = await Trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
           let accommodationGroups = await trip.getListOfAccommodationGroups();
-          let data = [];
-          accommodationGroups.forEach(group => {
-            let newObj = { ...group.dataValues };
-            let accommodationList = group.accommodation.map(accommodation => {
-              return accommodation.accommodation_id;
-            });
-            newObj.accommodation = accommodationList;
-            data.push(newObj);
-          });
+          const data = filterAccommodationGroupData(accommodationGroups);
           res.json(data);
         } else {
           res.status(401).send();
@@ -98,6 +96,45 @@ module.exports = app => {
         if (await trip.isUserAuthorizedToView(req.user)) {
           let accommodations = await trip.getListOfAccommodations();
           res.json(accommodations);
+        } else {
+          res.status(401).send();
+        }
+      } catch (error) {
+        res.status(400).json(error);
+      }
+    }
+  );
+
+  app.get(
+    '/trip/:tripId/flight_groups',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        let trip = await Trip.findById(req.params.tripId);
+        if (await trip.isUserAuthorizedToView(req.user)) {
+          let flightGroups = await trip.getListOfFlightGroups();
+          const data = filterFlightGroupData(flightGroups);
+          res.json(data);
+        } else {
+          res.status(401).send();
+        }
+      } catch (error) {
+        res.status(400).json(error);
+      }
+    }
+  );
+
+  app.get(
+    '/trip/:tripId/flights',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        let trip = await Trip.findById(req.params.tripId);
+        if (await trip.isUserAuthorizedToView(req.user)) {
+          let flights = await trip.getListOfFlights();
+          res.json(flights);
         } else {
           res.status(401).send();
         }
