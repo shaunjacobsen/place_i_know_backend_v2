@@ -1,30 +1,27 @@
-const Sequelize = require('sequelize');
-
-const { sequelize } = require('./../db/pg');
-const { Image } = require('./image');
-
-const Operator = sequelize.define(
-  'operator',
-  {
-    operator_id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
+module.exports = (sequelize, DataTypes) => {
+  const Operator = sequelize.define(
+    'operator',
+    {
+      operator_id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      name: { type: DataTypes.STRING },
+      shortcode: { type: DataTypes.STRING },
+      website: { type: DataTypes.STRING },
+      customer_service_num: { type: DataTypes.STRING },
+      travel_agent_num: { type: DataTypes.STRING },
+      image_id: { type: DataTypes.INTEGER },
+      created: { type: DataTypes.TIME },
+      created_by: { type: DataTypes.INTEGER },
     },
-    name: { type: Sequelize.STRING },
-    shortcode: { type: Sequelize.STRING },
-    website: { type: Sequelize.STRING },
-    customer_service_num: { type: Sequelize.STRING },
-    travel_agent_num: { type: Sequelize.STRING },
-    image_id: { type: Sequelize.INTEGER },
-    created: { type: Sequelize.TIME },
-    created_by: { type: Sequelize.INTEGER },
-  },
-  {
-    timestamps: false,
-  }
-);
+    {
+      timestamps: false,
+    }
+  );
 
-Operator.belongsTo(Image, { foreignKey: 'image_id' });
+  Operator.belongsTo(sequelize.models.image, { foreignKey: 'image_id' });
 
-module.exports = { Operator };
+  return Operator;
+};

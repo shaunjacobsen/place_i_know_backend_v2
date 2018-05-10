@@ -1,45 +1,43 @@
-const Sequelize = require('sequelize');
-
-const { User } = require('./../models/user');
-const { SessionKey } = require('./../models/sessionKey');
-const { Image } = require('./../models/image');
+const models = require('./../models');
 
 const authenticate = (req, res, next) => {
   const token = req.header('x-auth');
 
-  SessionKey.findOne({
-    where: {
-      token: token
-    }
-  }).then((result) => {
+  models.session_key
+    .findOne({
+      where: {
+        token: token,
+      },
+    })
+    .then(result => {
       if (!result) {
         return Promise.reject();
       }
 
-      return User.findById(result.user_id, {
-        attributes: ['email', 'first_name', 'last_name', 'profile_id', 'role'],
-        include: [{
-          model: Image,
-          attributes: ['secure_url']
-        }]
-      }).then((user) => {
-        req.user = user;
-        req.user._id = user.profile_id;
-        req.token = token;
+      return models.user
+        .findById(result.user_id, {
+          attributes: ['email', 'first_name', 'last_name', 'profile_id', 'role'],
+          include: [{
+            model: models.image,
+            attributes: ['secure_url']
+          }]
+        })
+        .then(user => {
+          req.user = user;
+          req.user._id = user.profile_id;
+          req.token = token;
 
-        next();
-      });
-      
-      
+          next();
+        });
     })
-    .catch((err) => {
-      res.status(401).send();
+    .catch(err => {
+      res.status(401).send(err.message);
     });
 };
 
 const isAllowed = (role, rolesAllowed) => {
   return rolesAllowed.indexOf(role) > -1;
-}
+};
 
 const permit = (...allowed) => {
   return (req, res, next) => {
@@ -48,7 +46,7 @@ const permit = (...allowed) => {
     } else {
       res.status(403).json({ message: 'Forbidden' });
     }
-   }
-}
+  };
+};
 
 module.exports = { authenticate, permit };

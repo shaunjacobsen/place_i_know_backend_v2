@@ -1,158 +1,127 @@
-const Sequelize = require('sequelize');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const { sequelize } = require('./../db/pg');
-const { SessionKey } = require('./sessionKey');
-const { Image } = require('./image');
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define(
+    'user',
+    {
+      profile_id: { type: DataTypes.INTEGER, primaryKey: true },
+      first_name: { type: DataTypes.STRING },
+      last_name: { type: DataTypes.STRING },
+      email: { type: DataTypes.STRING },
+      address1: { type: DataTypes.STRING },
+      address2: { type: DataTypes.STRING },
+      city: { type: DataTypes.STRING },
+      state: { type: DataTypes.STRING },
+      postal: { type: DataTypes.STRING },
+      country: { type: DataTypes.STRING },
+      phone: { type: DataTypes.STRING },
+      phone_abroad: { type: DataTypes.STRING },
+      gender: { type: DataTypes.STRING },
+      birthdate: { type: DataTypes.DATE },
+      passport_name: { type: DataTypes.STRING },
+      created: { type: DataTypes.TIME },
+      password: { type: DataTypes.STRING },
+      emergency_contact: { type: DataTypes.STRING },
+      role: { type: DataTypes.STRING },
+      image_id: { type: DataTypes.INTEGER },
+      last_updated: { type: DataTypes.TIME },
+    },
+    {
+      timestamps: false,
+      tableName: 'profiles',
+    }
+  );
 
-const User = sequelize.define(
-  'profile',
-  {
-    profile_id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-    },
-    first_name: {
-      type: Sequelize.STRING,
-    },
-    last_name: {
-      type: Sequelize.STRING,
-    },
-    email: {
-      type: Sequelize.STRING,
-    },
-    address1: {
-      type: Sequelize.STRING,
-    },
-    address2: {
-      type: Sequelize.STRING,
-    },
-    city: {
-      type: Sequelize.STRING,
-    },
-    state: {
-      type: Sequelize.STRING,
-    },
-    postal: {
-      type: Sequelize.STRING,
-    },
-    country: {
-      type: Sequelize.STRING,
-    },
-    phone: {
-      type: Sequelize.STRING,
-    },
-    phone_abroad: {
-      type: Sequelize.STRING,
-    },
-    gender: {
-      type: Sequelize.STRING,
-    },
-    birthdate: {
-      type: Sequelize.DATE,
-    },
-    passport_name: {
-      type: Sequelize.STRING,
-    },
-    created: {
-      type: Sequelize.TIME,
-    },
-    password: {
-      type: Sequelize.STRING,
-    },
-    emergency_contact: {
-      type: Sequelize.STRING,
-    },
-    role: {
-      type: Sequelize.STRING,
-    },
-    last_updated: {
-      type: Sequelize.TIME,
-    },
-  },
-  {
-    timestamps: false,
-  }
-);
+  User.associate = function(models) {
+    User.hasMany(models.session_key, { foreignKey: 'user_id' });
+    User.hasOne(models.image, { foreignKey: 'image_id' });
+  };
 
-User.image_id = User.belongsTo(Image, { foreignKey: 'image_id', targetKey: 'image_id' });
-User.hasMany(SessionKey, { foreignKey: 'user_id' });
+  User.findByCredentials = function(email, password) {
+    return this.findOne({ where: { email } })
+      .then(user => {
+        if (!user) {
+          return Promise.reject();
+        }
 
-User.findByCredentials = function(email, password) {
-  return this.findOne({ where: { email } })
-    .then(user => {
-      if (!user) {
+        return new Promise((resolve, reject) => {
+          bcrypt.compare(password, user.password, (err, res) => {
+            if (res) {
+              resolve(user);
+            } else {
+              reject();
+            }
+          });
+        });
+      })
+      .catch(() => {
+        console.log('error');
+      });
+  };
+
+  User.findByToken = function(token) {
+    return SessionKey.findOne({ where: { token } })
+      .then(result => {
+        console.log('result', result);
+        if (!!result) {
+          return Promise.resolve(result);
+        }
         return Promise.reject();
-      }
+      })
+      .catch(() => {
+        return Promise.reject();
+      });
+  };
 
-      return new Promise((resolve, reject) => {
-        bcrypt.compare(password, user.password, (err, res) => {
-          if (res) {
-            resolve(user);
+  User.prototype.generateAuthToken = async function() {
+    let token = jwt
+      .sign({ _id: this.profile_id, access: 'auth' }, process.env.JWT_SECRET)
+      .toString();
+    let session = await SessionKey.create({
+      token: token,
+      user_id: this.profile_id,
+      valid: true,
+      expires: new Date(new Date().getTime() + 1209600000), // 2 weeks
+    });
+    return session.token;
+  };
+
+  User.prototype.getAvatarUrl = async function() {
+    let image = await Image.findOne({ where: { image_id: this.image_id } });
+    return image.secure_url;
+  };
+
+  const generatePassword = plaintext => {
+    return new Promise((resolve, reject) => {
+      bcrypt.genSalt(10, (err, salt) => {
+        if (err) {
+          reject(err);
+        }
+
+        bcrypt.hash(plaintext, salt, (err, hash) => {
+          if (!err) {
+            resolve(hash);
           } else {
-            reject();
+            reject(err);
           }
         });
       });
-    })
-    .catch(() => {
-      console.log('error');
     });
-};
+  };
 
-User.findByToken = function(token) {
-  return SessionKey.findOne({ where: { token } })
-    .then(result => {
-      console.log('result', result);
-      if (!!result) {
-        return Promise.resolve(result);
-      }
-      return Promise.reject();
-    })
-    .catch(() => {
-      return Promise.reject();
-    });
-};
-
-User.prototype.generateAuthToken = async function() {
-  let token = jwt
-    .sign({ _id: this.profile_id, access: 'auth' }, process.env.JWT_SECRET)
-    .toString();
-  let session = await SessionKey.create({
-    token: token,
-    user_id: this.profile_id,
-    valid: true,
-    expires: new Date(new Date().getTime() + 1209600000), // 2 weeks
+  User.afterValidate((user, options) => {
+    if (user.changed('password')) {
+      return generatePassword(user.password)
+        .then(encryptedPassword => {
+          user.password = encryptedPassword;
+        })
+        .catch(err => {
+          if (err) console.log(err);
+        });
+    }
   });
-  return session.token;
-};
 
-User.prototype.getAvatarUrl = async function() {
-  let image = await Image.findOne({ where: { image_id: this.image_id } });
-  return image.secure_url;
-};
-
-const generatePassword = plaintext => {
-  return new Promise((resolve, reject) => {
-    bcrypt.genSalt(10, (err, salt) => {
-      if (err) {
-        reject(err);
-      }
-
-      bcrypt.hash(plaintext, salt, (err, hash) => {
-        if (!err) {
-          resolve(hash);
-        } else {
-          reject(err);
-        }
-      });
-    });
-  });
-};
-
-User.afterValidate((user, options) => {
-  if (user.changed('password')) {
+  User.beforeCreate((user, options) => {
     return generatePassword(user.password)
       .then(encryptedPassword => {
         user.password = encryptedPassword;
@@ -160,17 +129,7 @@ User.afterValidate((user, options) => {
       .catch(err => {
         if (err) console.log(err);
       });
-  }
-});
+  });
 
-User.beforeCreate((user, options) => {
-  return generatePassword(user.password)
-    .then(encryptedPassword => {
-      user.password = encryptedPassword;
-    })
-    .catch(err => {
-      if (err) console.log(err);
-    });
-});
-
-module.exports = { User };
+  return User;
+};

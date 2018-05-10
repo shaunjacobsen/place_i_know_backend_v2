@@ -1,17 +1,18 @@
-const Sequelize = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  const Image = sequelize.define(
+    'image',
+    {
+      image_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+      url: { type: DataTypes.STRING },
+      cloudinary_public_id: { type: DataTypes.STRING },
+      format: { type: DataTypes.STRING },
+      created: { type: DataTypes.TIME },
+      secure_url: { type: DataTypes.STRING },
+    },
+    {
+      timestamps: false,
+    }
+  );
 
-const { sequelize } = require('./../db/pg');
-
-const Image = sequelize.define('image', {
-  image_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-  url: { type: Sequelize.STRING },
-  cloudinary_public_id: { type: Sequelize.STRING },
-  format: { type: Sequelize.STRING },
-  created: { type: Sequelize.TIME },
-  secure_url: { type: Sequelize.STRING },
-},
-{
-  timestamps: false,
-});
-
-module.exports = { Image };
+  return Image;
+};

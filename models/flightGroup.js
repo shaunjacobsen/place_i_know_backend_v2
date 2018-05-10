@@ -1,29 +1,25 @@
-const Sequelize = require('sequelize');
-
-const { sequelize } = require('./../db/pg');
-const { Flight } = require('./flight');
-const { Trip } = require('./trip');
-
-const FlightGroup = sequelize.define(
-  'flight_group',
-  {
-    flight_group_id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
+module.exports = (sequelize, DataTypes) => {
+  const FlightGroup = sequelize.define(
+    'flight_group',
+    {
+      flight_group_id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      trip_id: { type: DataTypes.INTEGER },
+      title: { type: DataTypes.STRING },
+      confirmed: { type: DataTypes.BOOLEAN, default: false },
+      sort_index: { type: DataTypes.INTEGER },
+      created: { type: DataTypes.TIME },
+      created_by: { type: DataTypes.INTEGER },
     },
-    trip_id: { type: Sequelize.INTEGER },
-    title: { type: Sequelize.STRING },
-    confirmed: { type: Sequelize.BOOLEAN, default: false },
-    sort_index: { type: Sequelize.INTEGER },
-    created: { type: Sequelize.TIME },
-    created_by: { type: Sequelize.INTEGER },
-  },
-  {
-    timestamps: false,
-  }
-);
+    {
+      timestamps: false,
+    }
+  );
 
-FlightGroup.hasMany(Flight, { foreignKey: 'flight_group_id' });
+  FlightGroup.hasMany(sequelize.models.flight, { foreignKey: 'flight_group_id' });
 
-module.exports = { FlightGroup };
+  return FlightGroup;
+};

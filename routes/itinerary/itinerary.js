@@ -1,8 +1,7 @@
 const express = require('express');
+const models = require('./../../models');
 
 const { authenticate, permit } = require('./../../middleware/authenticate');
-const { Itinerary } = require('./../../models/itinerary');
-const { Day } = require('./../../models/day');
 const { reduceDaysToArray } = require('./../../functions/itinerary');
 
 module.exports = app => {
@@ -12,7 +11,7 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let itinerary = await Itinerary.findById(req.params.itineraryId);
+        let itinerary = await models.Itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
           data = {
             trip_id: itinerary.trip_id,
@@ -37,9 +36,9 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let itinerary = await Itinerary.findById(req.params.itineraryId);
+        let itinerary = await models.itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
-          let data = await Day.findAll({
+          let data = await models.day.findAll({
             where: { itinerary_id: itinerary.itinerary_id },
           });
           res.json(data);
@@ -58,7 +57,7 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let itinerary = await Itinerary.findById(req.params.itineraryId);
+        let itinerary = await models.Itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
           const events = await itinerary.getDateRangeOfItineraryEvents();
           const data = events.map(event => {
@@ -80,7 +79,7 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let itinerary = await Itinerary.findById(req.params.itineraryId);
+        let itinerary = await models.itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
           const events = await itinerary.getListOfEvents();
           res.json(events);
@@ -94,7 +93,7 @@ module.exports = app => {
   );
 
   app.post('/admin/itinerary', authenticate, permit('admin'), (req, res) => {
-    Itinerary.build({
+    models.Itinerary.build({
       trip_id: req.body.trip_id,
       title: req.body.title,
       start_date: req.body.start_date,
@@ -115,7 +114,7 @@ module.exports = app => {
     authenticate,
     permit('admin'),
     (req, res) => {
-      Itinerary.findById(req.params.itineraryId)
+      models.Itinerary.findById(req.params.itineraryId)
         .then(itinerary => {
           itinerary
             .update(
@@ -145,7 +144,7 @@ module.exports = app => {
     authenticate,
     permit('admin'),
     (req, res) => {
-      Itinerary.findById(req.params.itineraryId)
+      models.Itinerary.findById(req.params.itineraryId)
         .then(itinerary => {
           itinerary
             .destroy()

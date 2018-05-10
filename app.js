@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { sequelize } = require('./db/pg');
 require('./config/config');
 
 const app = express();
@@ -23,6 +22,7 @@ require('./routes/bookings/train')(app);
 require('./routes/itinerary/itinerary')(app);
 require('./routes/event/event')(app);
 require('./routes/place/place')(app);
+require('./routes/documents/document')(app);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(process.env.PORT, () => {

@@ -1,24 +1,19 @@
-const Sequelize = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  const Day = sequelize.define(
+    'day',
+    {
+      day_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+      itinerary_id: { type: DataTypes.INTEGER },
+      event_id: { type: DataTypes.INTEGER },
+      sort_index: { type: DataTypes.INTEGER },
+      day_attributes: { field: 'attributes', type: DataTypes.JSON },
+      date: { type: DataTypes.DATE },
+      type: { type: DataTypes.STRING },
+    },
+    {
+      timestamps: false,
+    }
+  );
 
-const { sequelize } = require('./../db/pg');
-const { Itinerary } = require('./itinerary');
-const { Event } = require('./event');
-const { Image } = require('./image');
-
-const Day = sequelize.define(
-  'day',
-  {
-    day_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    itinerary_id: { type: Sequelize.INTEGER },
-    event_id: { type: Sequelize.INTEGER },
-    sort_index: { type: Sequelize.INTEGER },
-    day_attributes: { field: 'attributes', type: Sequelize.JSON },
-    date: { type: Sequelize.DATE },
-    type: { type: Sequelize.STRING },
-  },
-  {
-    timestamps: false,
-  }
-);
-
-module.exports = { Day };
+  return Day;
+};

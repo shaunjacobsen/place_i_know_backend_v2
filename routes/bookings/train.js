@@ -1,8 +1,7 @@
 const express = require('express');
+const models = require('./../../models');
 
 const { authenticate, permit } = require('./../../middleware/authenticate');
-const { Train } = require('./../../models/train');
-const { Trip } = require('./../../models/trip');
 const { filterTrainGroupData } = require('./../../functions/trainGroup');
 
 module.exports = app => {
@@ -12,8 +11,8 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        const train = await Train.findById(req.params.id);
-        const trip = await Trip.findById(train.trip_id);
+        const train = await models.train.findById(req.params.id);
+        const trip = await models.trip.findById(train.trip_id);
         if (trip.isUserAuthorizedToView(req.user)) {
           const trains = await train.markAsSelected();
           if (trains.error) {

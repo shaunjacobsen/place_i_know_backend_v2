@@ -1,30 +1,28 @@
-const Sequelize = require('sequelize');
-
-const { sequelize } = require('./../db/pg');
-const { Accommodation } = require('./accommodation');
-const { Trip } = require('./trip');
-
-const AccommodationGroup = sequelize.define(
-  'accommodation_group',
-  {
-    accommodation_group_id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
+module.exports = (sequelize, DataTypes) => {
+  const AccommodationGroup = sequelize.define(
+    'accommodation_group',
+    {
+      accommodation_group_id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      trip_id: { type: DataTypes.INTEGER },
+      title: { type: DataTypes.STRING },
+      status: { type: DataTypes.STRING },
+      start_date: { type: DataTypes.DATE },
+      end_date: { type: DataTypes.DATE },
+      created: { type: DataTypes.TIME },
+      created_by: { type: DataTypes.INTEGER },
     },
-    trip_id: { type: Sequelize.INTEGER },
-    title: { type: Sequelize.STRING },
-    status: { type: Sequelize.STRING },
-    start_date: { type: Sequelize.DATE },
-    end_date: { type: Sequelize.DATE },
-    created: { type: Sequelize.TIME },
-    created_by: { type: Sequelize.INTEGER },
-  },
-  {
-    timestamps: false,
-  }
-);
+    {
+      timestamps: false,
+    }
+  );
 
-AccommodationGroup.hasMany(Accommodation, { foreignKey: 'accommodation_group_id' });
+  AccommodationGroup.hasMany(sequelize.models.accommodation, {
+    foreignKey: 'accommodation_group_id',
+  });
 
-module.exports = { AccommodationGroup };
+  return AccommodationGroup;
+};

@@ -1,10 +1,7 @@
 const express = require('express');
+const models = require('./../../models');
 
 const { authenticate, permit } = require('./../../middleware/authenticate');
-const { Image } = require('./../../models/image');
-const { Itinerary } = require('./../../models/itinerary');
-const { Place } = require('./../../models/place');
-const { Trip } = require('./../../models/trip');
 const { filterAccommodationGroupData } = require('./../../functions/accommodationGroup');
 const { filterFlightGroupData } = require('./../../functions/flightGroup');
 const { filterTrainGroupData } = require('./../../functions/trainGroup');
@@ -17,7 +14,7 @@ const flattenArray = arr => {
 
 module.exports = app => {
   app.get('/trip', authenticate, permit('user', 'admin'), async (req, res) => {
-    let trips = await Trip.findByUser(req.user.profile_id);
+    let trips = await models.Trip.findByUser(req.user.profile_id);
     res.json(trips);
   });
 
@@ -27,14 +24,16 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let trip = await Trip.findById(req.params.tripId);
+        let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
-          let itineraries = await Itinerary.findAll({ where: { trip_id: trip.trip_id } });
+          let itineraries = await models.itinerary.findAll({
+            where: { trip_id: trip.trip_id },
+          });
           res.json(itineraries);
         }
         res.status(401).send();
       } catch (e) {
-        res.status(400).json(error);
+        res.status(400).json(e);
       }
     }
   );
@@ -45,9 +44,9 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let trip = await Trip.findById(req.params.tripId);
+        let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
-          let itinerary = await Itinerary.findOne({
+          let itinerary = await models.itinerary.findOne({
             where: { trip_id: trip.trip_id },
           });
           let eventPlaces = await itinerary.getListOfEventPlaces();
@@ -60,10 +59,10 @@ module.exports = app => {
             flattenArray(trainPlaces)
           );
 
-          let placesList = await Place.findAll({
+          let placesList = await models.place.findAll({
             where: { place_id: { $in: concatenatedPlaceIds } },
             include: {
-              model: Image,
+              model: models.image,
               attributes: ['secure_url'],
             },
           });
@@ -83,7 +82,7 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let trip = await Trip.findById(req.params.tripId);
+        let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
           let accommodationGroups = await trip.getListOfAccommodationGroups();
           const data = filterAccommodationGroupData(accommodationGroups);
@@ -103,7 +102,7 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let trip = await Trip.findById(req.params.tripId);
+        let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
           let accommodations = await trip.getListOfAccommodations();
           res.json(accommodations);
@@ -122,7 +121,7 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let trip = await Trip.findById(req.params.tripId);
+        let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
           let flightGroups = await trip.getListOfFlightGroups();
           const data = filterFlightGroupData(flightGroups);
@@ -142,15 +141,15 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let trip = await Trip.findById(req.params.tripId);
+        let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
           let flights = await trip.getListOfFlights();
           res.json(flights);
         } else {
           res.status(401).send();
         }
-      } catch (error) {
-        res.status(400).json(error);
+      } catch (e) {
+        res.status(400).json(e);
       }
     }
   );
@@ -161,7 +160,7 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let trip = await Trip.findById(req.params.tripId);
+        let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
           let trainGroups = await trip.getListOfTrainGroups();
           const data = filterTrainGroupData(trainGroups);
@@ -181,7 +180,7 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let trip = await Trip.findById(req.params.tripId);
+        let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
           let trains = await trip.getListOfTrains();
           res.json(trains);
@@ -194,8 +193,46 @@ module.exports = app => {
     }
   );
 
+  app.get(
+    '/trip/:id/attendees',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        let trip = await models.trip.findById(req.params.id);
+        if (trip.isUserAuthorizedToView(req.user)) {
+          const attendees = await trip.listAttendees();
+          res.json(attendees);
+        } else {
+          res.status(401).send();
+        }
+      } catch (e) {
+        res.status(400).json(e);
+      }
+    }
+  );
+
+  app.get(
+    '/trip/:tripId/document_groups',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        let trip = await models.trip.findById(req.params.tripId);
+        if (await trip.isUserAuthorizedToView(req.user)) {
+          let documentGroups = await trip.getListOfDocumentGroups();
+          res.json(documentGroups);
+        } else {
+          res.status(401).send();
+        }
+      } catch (error) {
+        res.status(400).json(error);
+      }
+    }
+  );
+
   app.post('/admin/trip', authenticate, permit('admin'), (req, res) => {
-    Trip.build({
+    models.Trip.build({
       title: req.body.title,
       start_date: req.body.start_date,
       end_date: req.body.end_date,
@@ -210,7 +247,7 @@ module.exports = app => {
   });
 
   app.patch('/admin/trip/:tripId', authenticate, permit('admin'), (req, res) => {
-    Trip.findById(req.params.tripId)
+    models.Trip.findById(req.params.tripId)
       .then(trip => {
         trip
           .update(
@@ -233,7 +270,7 @@ module.exports = app => {
   });
 
   app.delete('/admin/trip/:tripId', authenticate, permit('admin'), (req, res) => {
-    Trip.findById(req.params.tripId)
+    models.Trip.findById(req.params.tripId)
       .then(trip => {
         trip
           .destroy()
@@ -242,45 +279,4 @@ module.exports = app => {
       })
       .catch(e => res.status(404).send());
   });
-
-  app.get(
-    '/trip/:id/attendees',
-    authenticate,
-    permit('user', 'admin'),
-    async (req, res) => {
-      try {
-        let trip = await Trip.findById(req.params.id);
-        if (trip.isUserAuthorizedToView(req.user)) {
-          const attendees = await trip.listAttendees();
-          res.json(attendees);
-        } else {
-          res.status(401).send();
-        }
-      } catch (e) {
-        res.status(400).json(e);
-      }
-    }
-  );
-
-  app.get(
-    '/trip/:id/bookings',
-    authenticate,
-    permit('user', 'admin'),
-    async (req, res) => {
-      try {
-        let trip = await Trip.findById(req.params.id);
-        if (trip.isUserAuthorizedToView(req.user)) {
-          const accommodations = await trip.listAccommodations();
-          const data = {
-            accommodations,
-          };
-          res.json(data);
-        } else {
-          res.status(401).send();
-        }
-      } catch (e) {
-        res.status(400).json(e);
-      }
-    }
-  );
 };

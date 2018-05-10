@@ -1,8 +1,7 @@
 const express = require('express');
+const models = require('./../../models');
 
 const { authenticate, permit } = require('./../../middleware/authenticate');
-const { Accommodation } = require('./../../models/accommodation');
-const { Trip } = require('./../../models/trip');
 const { filterAccommodationGroupData } = require('./../../functions/accommodationGroup');
 
 module.exports = app => {
@@ -12,8 +11,8 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        const accommodation = await Accommodation.findById(req.params.id);
-        const trip = await Trip.findById(accommodation.trip_id);
+        const accommodation = await models.accommodation.findById(req.params.id);
+        const trip = await models.trip.findById(accommodation.trip_id);
         if (trip.isUserAuthorizedToView(req.user)) {
           const data = {
             accommodation_id: accommodation.accommodation_id,
@@ -38,7 +37,7 @@ module.exports = app => {
           res.status(401).send();
         }
       } catch (e) {
-
+        res.status(400).send(e);
       }
     }
   );
@@ -49,8 +48,8 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        const accommodation = await Accommodation.findById(req.params.id);
-        const trip = await Trip.findById(accommodation.trip_id);
+        const accommodation = await models.accommodation.findById(req.params.id);
+        const trip = await models.trip.findById(accommodation.trip_id);
         if (trip.isUserAuthorizedToView(req.user)) {
           const accommodations = await accommodation.markAsSelected();
           if (accommodations.error) {
