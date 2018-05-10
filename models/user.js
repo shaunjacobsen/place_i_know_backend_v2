@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -60,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.findByToken = function(token) {
-    return SessionKey.findOne({ where: { token } })
+    return sequelize.models.session_key.findOne({ where: { token } })
       .then(result => {
         console.log('result', result);
         if (!!result) {
@@ -77,7 +78,7 @@ module.exports = (sequelize, DataTypes) => {
     let token = jwt
       .sign({ _id: this.profile_id, access: 'auth' }, process.env.JWT_SECRET)
       .toString();
-    let session = await SessionKey.create({
+    let session = await sequelize.models.session_key.create({
       token: token,
       user_id: this.profile_id,
       valid: true,
@@ -87,7 +88,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.prototype.getAvatarUrl = async function() {
-    let image = await Image.findOne({ where: { image_id: this.image_id } });
+    let image = await sequelize.models.image.findOne({ where: { image_id: this.image_id } });
     return image.secure_url;
   };
 

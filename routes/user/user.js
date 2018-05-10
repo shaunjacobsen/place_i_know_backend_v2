@@ -19,7 +19,7 @@ module.exports = app => {
 
   app.post('/signin', async (req, res) => {
     try {
-      const user = await models.User.findByCredentials(req.body.email, req.body.password);
+      const user = await models.user.findByCredentials(req.body.email, req.body.password);
       const token = await user.generateAuthToken();
       const userDetails = await getBaseUserDetails(user);
       res.header('x-auth', token).send(userDetails);
@@ -30,9 +30,9 @@ module.exports = app => {
 
   app.get('/token', async (req, res) => {
     try {
-      const tokenDetails = await models.SessionKey.getDetails(req.headers['x-auth']);
+      const tokenDetails = await models.session_key.getDetails(req.headers['x-auth']);
       if (tokenDetails.expires > new Date().getTime()) {
-        const user = await models.User.findOne({ where: { profile_id: tokenDetails.user_id } });
+        const user = await models.user.findOne({ where: { profile_id: tokenDetails.user_id } });
         const userDetails = await getBaseUserDetails(user);
         res.send(userDetails);
       }
@@ -43,7 +43,7 @@ module.exports = app => {
 
   app.post('/signout', async (req, res) => {
     try {
-      await models.SessionKey.invalidate(req.body.token);
+      await models.session_key.invalidate(req.body.token);
       res.status(200).send();
     } catch (error) {
       res.status(400).send();
