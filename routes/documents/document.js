@@ -1,5 +1,6 @@
 const express = require('express');
 const models = require('./../../models');
+const s3 = require('./../../functions/s3');
 
 const { authenticate, permit } = require('./../../middleware/authenticate');
 
@@ -25,4 +26,16 @@ module.exports = app => {
       }
     }
   );
+
+  app.get('/admin/document/upload', authenticate, permit('admin'), async (req, res) => {
+    const fileName = req.query.filename;
+    const fileType = fileName.split('.').pop();
+    try {
+      const uploadUrl = await s3.getSignedUploadUrl(fileName, fileType);
+      res.json(uploadUrl);
+    } catch (e) {
+      res.status(400).send(e);
+    }
+  });
+
 };

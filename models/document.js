@@ -23,7 +23,9 @@ module.exports = (sequelize, DataTypes) => {
       });
       const trip = await Trip.findById(tripId);
       return trip.isUserAuthorizedToView();
-    } catch (e) {}
+    } catch (e) {
+      
+    }
   };
 
   return Document;
