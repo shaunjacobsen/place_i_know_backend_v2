@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
 
   User.associate = function(models) {
     User.hasMany(models.session_key, { foreignKey: 'user_id' });
-    User.hasOne(models.image, { foreignKey: 'image_id' });
+    User.belongsTo(models.image, { foreignKey: 'image_id' });
   };
 
   User.findByCredentials = function(email, password) {
@@ -61,7 +61,8 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.findByToken = function(token) {
-    return sequelize.models.session_key.findOne({ where: { token } })
+    return sequelize.models.session_key
+      .findOne({ where: { token } })
       .then(result => {
         console.log('result', result);
         if (!!result) {
@@ -88,7 +89,9 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.prototype.getAvatarUrl = async function() {
-    let image = await sequelize.models.image.findOne({ where: { image_id: this.image_id } });
+    let image = await sequelize.models.image.findOne({
+      where: { image_id: this.image_id },
+    });
     return image.secure_url;
   };
 
