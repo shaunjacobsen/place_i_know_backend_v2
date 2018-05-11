@@ -14,7 +14,7 @@ const flattenArray = arr => {
 
 module.exports = app => {
   app.get('/trip', authenticate, permit('user', 'admin'), async (req, res) => {
-    let trips = await models.Trip.findByUser(req.user.profile_id);
+    let trips = await models.trip.findByUser(req.user.profile_id);
     res.json(trips);
   });
 
@@ -230,6 +230,24 @@ module.exports = app => {
       }
     }
   );
+
+  app.get('/admin/trip', authenticate, permit('admin'), async (req, res) => {
+    try {
+      const allTrips = await models.trip.findAll();
+      res.json(allTrips);
+    } catch (e) {
+      res.status(400).send();
+    }
+  });
+
+  app.get('/admin/trip/:id', authenticate, permit('admin'), async (req, res) => {
+    try {
+      const trip = await models.trip.findById(req.params.id);
+      res.json(trip);
+    } catch (e) {
+      res.status(400).send();
+    }
+  });
 
   app.post('/admin/trip', authenticate, permit('admin'), (req, res) => {
     models.Trip.build({
