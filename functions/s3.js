@@ -3,15 +3,16 @@ aws.config.region = 'us-east-2';
 const s3 = new aws.S3();
 
 module.exports = {
-  getSignedUploadUrl: (fileName, fileType) => {
+  getSignedDownloadUrl: doc => {
     return new Promise((resolve, reject) => {
       s3.getSignedUrl(
-        'putObject',
+        'getObject',
         {
           Bucket: process.env.AWS_S3_BUCKET,
-          Key: fileName,
-          Expires: 60,
-          ContentType: fileType,
+          Key: doc.s3_object,
+          Expires: 43200, // 12 hours
+          ResponseContentDisposition: `attachment; filename=${doc.title}.pdf`,
+          ResponseContentType: 'application/pdf',
         },
         (error, data) => {
           if (error) {
@@ -19,7 +20,27 @@ module.exports = {
           }
           resolve({
             signedUrl: data,
-            url: `https://${process.env.AWS_S3_BUCKET}.s3.amazonaws.com/${fileName}`,
+          });
+        }
+      );
+    });
+  },
+  getSignedUploadUrl: (fileName, fileType) => {
+    return new Promise((resolve, reject) => {
+      s3.getSignedUrl(
+        'putObject',
+        {
+          Bucket: process.env.AWS_S3_BUCKET,
+          Key: `${fileName}`,
+          Expires: 300,
+          ContentType: 'application/pdf',
+        },
+        (error, data) => {
+          if (error) {
+            reject(error);
+          }
+          resolve({
+            signedUrl: data,
           });
         }
       );

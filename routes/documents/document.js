@@ -13,10 +13,9 @@ module.exports = app => {
       try {
         let doc = await models.document.findById(req.params.id);
         if (doc.isUserAuthorizedToDownload(req.user)) {
-          //const downloadUrl = await doc.getSignedS3Url();
-          const downloadUrl = 'yes';
+          const downloadData = await s3.getSignedDownloadUrl(doc);
           res.json({
-            download_url: downloadUrl,
+            download_url: downloadData.signedUrl,
           });
         } else {
           res.status(401).send();
@@ -27,15 +26,43 @@ module.exports = app => {
     }
   );
 
-  app.get('/admin/document/upload', authenticate, permit('admin'), async (req, res) => {
-    const fileName = req.query.filename;
-    const fileType = fileName.split('.').pop();
+  app.post('/admin/document/upload', authenticate, permit('admin'), async (req, res) => {
     try {
-      const uploadUrl = await s3.getSignedUploadUrl(fileName, fileType);
-      res.json(uploadUrl);
+      const newDocument = await models.document.createNew(req.body, req.user);
+      const uploadUrl = await s3.getSignedUploadUrl(
+        encodeURIComponent(newDocument.s3_object),
+        req.body.file_type
+      );
+      res.json({
+        upload: uploadUrl,
+        document: newDocument,
+      });
     } catch (e) {
       res.status(400).send(e);
     }
   });
 
+  app.patch('/admin/document/:documentId', authenticate, permit('admin'), (req, res) => {
+    models.document
+      .findById(req.params.documentId)
+      .then(doc => {
+        doc
+          .update(
+            {
+              title: req.body.title,
+              document_group_id: req.body.document_group_id,
+              expires: req.body.expires,
+              uploaded: req.body.uploaded,
+            },
+            {
+              fields: Object.keys(req.body),
+            }
+          )
+          .then(updatedDocument => {
+            res.status(200).json(updatedDocument);
+          })
+          .catch(e => res.status(400).json({ errors: e }));
+      })
+      .catch(e => res.status(404).json({ errors: e }));
+  });
 };
