@@ -12,7 +12,6 @@ module.exports = {
           Key: doc.s3_object,
           Expires: 43200, // 12 hours
           ResponseContentDisposition: `attachment; filename=${doc.title}.pdf`,
-          ResponseContentType: 'application/pdf',
         },
         (error, data) => {
           if (error) {
