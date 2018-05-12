@@ -231,6 +231,25 @@ module.exports = app => {
     }
   );
 
+  app.get(
+    '/trip/:tripId/charges',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        let trip = await models.trip.findById(req.params.tripId);
+        if (await trip.isUserAuthorizedToView(req.user)) {
+          let charges = await trip.getListOfCharges();
+          res.json(charges);
+        } else {
+          res.status(401).send();
+        }
+      } catch (error) {
+        res.status(400).json(error);
+      }
+    }
+  );
+
   app.get('/admin/trip', authenticate, permit('admin'), async (req, res) => {
     try {
       const allTrips = await models.trip.findAll();

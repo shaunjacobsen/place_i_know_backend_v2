@@ -296,5 +296,36 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
 
+  Trip.prototype.getListOfCharges = async function() {
+    try {
+      return await sequelize.models.charge.findAll({
+        attributes: [
+          'charge_id',
+          'trip_id',
+          'type',
+          'charge_date',
+          'due_date',
+          'product_name',
+          'subtotal',
+          'taxes',
+          'total',
+          'payment_status',
+          'client_paid',
+          'client_paid_date',
+          'paid_by',
+          'payment_method',
+          'reference',
+          'notes',
+          'vendor_id',
+        ],
+        where: { trip_id: this.trip_id },
+        include: { model: sequelize.models.vendor, attributes: ['name', 'dba_name'] },
+        order: [['charge_date', 'ASC'], ['client_paid', 'ASC'], ['total', 'ASC']],
+      });
+    } catch (e) {
+      return e.message;
+    }
+  };
+
   return Trip;
 };
