@@ -189,7 +189,9 @@ module.exports = (sequelize, DataTypes) => {
     try {
       return await sequelize.models.flight_group.findAll({
         where: { trip_id: this.trip_id },
-        include: [{ model: sequelize.models.flight, attributes: ['flight_id', 'status'] }],
+        include: [
+          { model: sequelize.models.flight, attributes: ['flight_id', 'status'] },
+        ],
       });
     } catch (e) {
       return e;

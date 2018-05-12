@@ -22,7 +22,7 @@ module.exports = app => {
   });
 
   app.post('/admin/place', authenticate, permit('admin'), (req, res) => {
-    models.Place.build({
+    models.place.build({
       type: req.body.type,
       name: req.body.name,
       full_address: req.body.full_address,
@@ -52,7 +52,7 @@ module.exports = app => {
   });
 
   app.patch('/admin/place/:placeId', authenticate, permit('admin'), (req, res) => {
-    models.Place.findById(req.params.placeId)
+    models.place.findById(req.params.placeId)
       .then(place => {
         place
           .update(
@@ -90,7 +90,7 @@ module.exports = app => {
   });
 
   app.delete('/admin/place/:placeId', authenticate, permit('admin'), (req, res) => {
-    models.Place.findById(req.params.placeId)
+    models.place.findById(req.params.placeId)
       .then(place => {
         place
           .destroy()

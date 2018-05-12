@@ -45,7 +45,7 @@ module.exports = app => {
   });
 
   app.post('/admin/event', authenticate, permit('admin'), (req, res) => {
-    models.Event.build({
+    models.event.build({
       itinerary_id: req.body.itinerary_id,
       event_type: req.body.event_type,
       subtype: req.body.subtype,
@@ -72,7 +72,7 @@ module.exports = app => {
   });
 
   app.patch('/admin/event/:eventId', authenticate, permit('admin'), (req, res) => {
-    models.Event.findById(req.params.eventId)
+    models.event.findById(req.params.eventId)
       .then(event => {
         event
           .update(
