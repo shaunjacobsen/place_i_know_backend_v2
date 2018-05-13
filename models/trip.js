@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       end_date: { type: DataTypes.DATE, allowNull: false },
       created: { type: DataTypes.TIME },
       tripAttributes: { field: 'attributes', type: DataTypes.JSON, allowNull: true },
+      travel_planner_id: { type: DataTypes.INTEGER },
       created_by: { type: DataTypes.INTEGER },
       attendees: { type: DataTypes.ARRAY(DataTypes.INTEGER), allowNull: false },
     },
