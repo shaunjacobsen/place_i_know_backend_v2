@@ -47,7 +47,7 @@ module.exports = app => {
   );
 
   app.post(
-    '/chat/room/:pusherRoomId/message/:messageId/markRead',
+    '/chat/room/:pusherRoomId/message/:messageId/mark_read',
     authenticate,
     permit('user', 'admin'),
     async (req, res) => {
