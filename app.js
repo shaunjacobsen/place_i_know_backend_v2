@@ -1,5 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const compress = require('compression');
+const helmet = require('helmet');
 require('./config/config');
 
 const app = express();
@@ -12,8 +14,10 @@ app.use(function(req, res, next) {
   next();
 });
 
+app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(compress());
 
 require('./routes/user/user')(app);
 require('./routes/trip/trip')(app);
