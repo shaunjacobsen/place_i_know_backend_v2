@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Flight.associate = function(models) {
-    Flight.belongsTo(models.flight_leg, { foreignKey: 'flight_id' });
+    Flight.hasMany(models.flight_leg, { foreignKey: 'flight_id' });
   };
 
   Flight.prototype.markAsSelected = async function() {

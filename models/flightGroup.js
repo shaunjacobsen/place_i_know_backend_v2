@@ -19,7 +19,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  FlightGroup.hasMany(sequelize.models.flight, { foreignKey: 'flight_group_id' });
+  FlightGroup.associate = function(models) {
+    FlightGroup.hasMany(sequelize.models.flight, { foreignKey: 'flight_group_id' });
+  };
 
   return FlightGroup;
 };
