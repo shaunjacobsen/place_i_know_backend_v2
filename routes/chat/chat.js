@@ -27,6 +27,63 @@ module.exports = app => {
     }
   );
 
+  app.get(
+    '/chat/room/:pusherRoomId',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        const chatRoom = await models.chat_room.findOne({
+          where: { room_id: req.params.pusherRoomId },
+          include: { model: models.chat_message },
+        });
+        if (await chatRoom.isUserAuthorizedForRoomActions(req.user)) {
+          res.json(chatRoom);
+        }
+      } catch (e) {
+        res.status(400).send(e);
+      }
+    }
+  );
+
+  app.post(
+    '/chat/room/:pusherRoomId/message/:messageId/markRead',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        const chatRoom = await models.chat_room.findOne({
+          where: { room_id: req.params.pusherRoomId },
+        });
+        if (await chatRoom.isUserAuthorizedForRoomActions(req.user)) {
+          const resp = await chatRoom.setUserReadMessage(req.user._id, req.params.messageId);
+          res.json(resp);
+        }
+      } catch (e) {
+
+      }
+    }
+  );
+
+  app.post(
+    '/chat/room/:pusherRoomId/message',
+    authenticate,
+    permit('user', 'admin'),
+    async (req, res) => {
+      try {
+        const chatRoom = await models.chat_room.findOne({
+          where: { room_id: req.params.pusherRoomId },
+        });
+        if (await chatRoom.isUserAuthorizedForRoomActions(req.user)) {
+          const resp = await chatRoom.createNewMessage(req.user._id, req.body);
+          res.json(resp);
+        }
+      } catch (e) {
+
+      }
+    }
+  );
+
   // users
 
   app.get('/admin/chat/users', authenticate, permit('admin'), async (req, res) => {
