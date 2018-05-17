@@ -91,7 +91,16 @@ module.exports = app => {
           .update({
             password: req.body.new_password,
           })
-          .then(() => res.status(200).send())
+          .then(() => {
+            tokenRecord
+              .update({
+                used: true,
+              })
+              .then(() => {
+                res.status(200).send();
+              })
+              .catch(() => res.status(400).send());
+          })
           .catch(() => res.status(400).send());
       } else {
         res.status(401).json({ error: 'TOKEN_INVALID' });
