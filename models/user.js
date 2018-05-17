@@ -103,9 +103,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
 
-  User.afterValidate(async (user, options) => {
+  User.beforeUpdate(async (user, options) => {
     if (user.changed('password')) {
-      console.log('in user changed password');
       try {
         user.password = await generatePassword(user.password);
       } catch (e) {
