@@ -20,6 +20,7 @@
   "homepage": "https://github.com/shaunjacobsen/place_i_know_backend_v2#readme",
   "dependencies": {
     "@pusher/chatkit-server": "^0.12.1",
+    "amqplib": "^0.5.2",
     "aws-sdk": "^2.237.1",
     "axios": "^0.18.0",
     "bcrypt": "^1.0.3",

@@ -55,8 +55,8 @@ module.exports = (sequelize, DataTypes) => {
           });
         });
       })
-      .catch(() => {
-        console.log('error');
+      .catch(e => {
+        console.log('e', e);
       });
   };
 
@@ -95,33 +95,22 @@ module.exports = (sequelize, DataTypes) => {
     return image.secure_url;
   };
 
-  const generatePassword = plaintext => {
-    return new Promise((resolve, reject) => {
-      bcrypt.genSalt(10, (err, salt) => {
-        if (err) {
-          reject(err);
-        }
-
-        bcrypt.hash(plaintext, salt, (err, hash) => {
-          if (!err) {
-            resolve(hash);
-          } else {
-            reject(err);
-          }
-        });
-      });
-    });
+  const generatePassword = async plaintext => {
+    try {
+      return await bcrypt.hash(plaintext, 10);
+    } catch (e) {
+      return null;
+    }
   };
 
-  User.afterValidate((user, options) => {
+  User.afterValidate(async (user, options) => {
     if (user.changed('password')) {
-      return generatePassword(user.password)
-        .then(encryptedPassword => {
-          user.password = encryptedPassword;
-        })
-        .catch(err => {
-          if (err) console.log(err);
-        });
+      console.log('in user changed password');
+      try {
+        user.password = await generatePassword(user.password);
+      } catch (e) {
+        console.log(err);
+      }
     }
   });
 
