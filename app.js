@@ -7,10 +7,13 @@ require('./config/config');
 const app = express();
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-auth");
-  res.header("Access-Control-Expose-Headers", "x-auth");
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, x-auth'
+  );
+  res.header('Access-Control-Expose-Headers', 'x-auth');
   next();
 });
 
@@ -26,6 +29,7 @@ require('./routes/bookings/flight')(app);
 require('./routes/bookings/train')(app);
 require('./routes/chat/chat')(app);
 require('./routes/itinerary/itinerary')(app);
+require('./routes/image/image')(app);
 require('./routes/event/event')(app);
 require('./routes/place/place')(app);
 require('./routes/documents/document')(app);
