@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const compress = require('compression');
 const helmet = require('helmet');
+const morgan = require('morgan');
 require('./config/config');
 
 const app = express();
