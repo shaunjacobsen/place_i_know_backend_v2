@@ -21,6 +21,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compress());
+app.use(morgan('dev'));
 
 require('./routes/user/user')(app);
 require('./routes/trip/trip')(app);
