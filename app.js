@@ -5,6 +5,8 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('./config/config');
 
+global.__basedir = __dirname;
+
 const app = express();
 
 app.use(function(req, res, next) {
