@@ -5,6 +5,8 @@ const uuid = require('uuid/v4');
 const models = require('./../../models');
 const { cloudinary } = require('./../../external/image/cloudinary');
 const { determineFolder, assignImage } = require('./../../functions/image');
+const imageQueue = require('./../../queue/image');
+const chatQueue = require('./../../queue/chat');
 
 const diskStorage = multer.diskStorage({
   destination: path.join(__basedir, '/public/images'),
@@ -13,7 +15,7 @@ const diskStorage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: diskStorage });
+const upload = multer({ storage: diskStorage, limits: { fileSize: 3145728 } });
 
 const { authenticate, permit } = require('./../../middleware/authenticate');
 
@@ -66,14 +68,13 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        console.log(req.body);
         await cloudinary.v2.uploader.upload(
           req.body.image,
           {
             resource_type: 'image',
             folder: determineFolder(req.body.type),
             async: true,
-            upload_preset: 'ogtij21s',
+            upload_preset: 'final-avatar',
           },
           async (error, result) => {
             if (error) {
@@ -90,6 +91,10 @@ module.exports = app => {
                 format: result.format,
                 created: result.created_at,
               },
+            });
+            imageQueue.queueImageDeletion({
+              function: 'REMOVE_CLOUDINARY_IMAGE',
+              cloudinaryPublicId: req.body.delete,
             });
             if (assign) {
               res.status(201).json({
