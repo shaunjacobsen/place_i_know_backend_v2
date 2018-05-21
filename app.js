@@ -24,7 +24,9 @@ app.use(helmet());
 app.use(bodyParser.json({ limit: '3mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compress());
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 require('./routes/user/user')(app);
 require('./routes/trip/trip')(app);
