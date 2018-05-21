@@ -12,6 +12,7 @@ const getBaseUserDetails = async userObject => ({
   email: userObject.email,
   avatar: await userObject.getAvatarUrl(),
   role: userObject.role,
+  created: userObject.created,
 });
 
 module.exports = app => {
