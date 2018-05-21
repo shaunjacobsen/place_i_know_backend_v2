@@ -2,7 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const compress = require('compression');
 const helmet = require('helmet');
-const morgan = require('morgan');
+if (process.env.NODE_ENV === 'development') {
+  const morgan = require('morgan');
+}
 require('./config/config');
 
 global.__basedir = __dirname;
