@@ -1,2 +1,4 @@
 node_modules/
 config/config.json
+public/images/
+yarn-error.log
