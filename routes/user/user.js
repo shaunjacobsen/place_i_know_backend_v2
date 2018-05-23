@@ -23,11 +23,14 @@ module.exports = app => {
   app.post('/signin', async (req, res) => {
     try {
       const user = await models.user.findByCredentials(req.body.email, req.body.password);
+      if (!user) {
+        res.status(401).json({ error: 'INCORRECT_CREDENTIALS' });
+      }
       const token = await user.generateAuthToken();
       const userDetails = await getBaseUserDetails(user);
       res.header('x-auth', token).send(userDetails);
     } catch (e) {
-      res.status(400).send(e.message);
+      res.status(400).json({ error: 'REQUEST_ERROR' });
     }
   });
 
