@@ -11,7 +11,7 @@ module.exports = app => {
     permit('user', 'admin'),
     async (req, res) => {
       try {
-        let itinerary = await models.Itinerary.findById(req.params.itineraryId);
+        let itinerary = await models.itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
           data = {
             trip_id: itinerary.trip_id,

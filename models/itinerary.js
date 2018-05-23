@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     'itinerary',
     {
       itinerary_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+      trip_id: { type: DataTypes.INTEGER },
       title: { type: DataTypes.STRING, allowNull: false },
       start_date: { type: DataTypes.DATE, allowNull: false },
       end_date: { type: DataTypes.DATE, allowNull: false },
