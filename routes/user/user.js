@@ -113,4 +113,34 @@ module.exports = app => {
       res.status(400).send();
     }
   });
+
+  app.patch('/user/:userId', authenticate, permit('user', 'admin'), async (req, res) => {
+    const userToUpdate = await models.user.findById(req.params.userId);
+    if (userToUpdate.profile_id === req.user._id || req.user.role === 'admin') {
+      userToUpdate
+        .update(
+          {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            email: req.body.email,
+            address1: req.body.address1,
+            address2: req.body.address2,
+            city: req.body.city,
+            state: req.body.state,
+            postal: req.body.postal,
+            country: req.body.country,
+            phone: req.body.phone,
+            gender: req.body.gender,
+            birthdate: req.body.birthdate,
+          },
+          { fields: Object.keys(req.body) }
+        )
+        .then(updatedUser => {
+          res.status(200).json(updatedUser);
+        })
+        .catch(e => res.status(400).json({ errors: e }));
+    } else {
+      res.status(401).send();
+    }
+  });
 };
