@@ -15,5 +15,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
+  Day.associate = function(models) {
+    Day.belongsTo(models.event, { foreignKey: 'event_id' });
+  };
+
   return Day;
 };

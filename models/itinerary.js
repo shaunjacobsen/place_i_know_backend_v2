@@ -1,3 +1,9 @@
+const {
+  transformEventsForApp,
+  transformNotesForApp,
+  transformDirectionsForApp,
+} = require('./../functions/itinerary');
+
 module.exports = (sequelize, DataTypes) => {
   const Itinerary = sequelize.define(
     'itinerary',
@@ -81,13 +87,13 @@ module.exports = (sequelize, DataTypes) => {
     try {
       return await sequelize.models.event
         .findAll({
-          attributes: ['places'],
+          attributes: ['place_id'],
           where: {
             itinerary_id: this.itinerary_id,
           },
         })
         .map(place => {
-          return place.places[0];
+          return place.place_id;
         });
     } catch (e) {
       return e;
@@ -106,6 +112,51 @@ module.exports = (sequelize, DataTypes) => {
       });
     } catch (error) {
       return error;
+    }
+  };
+
+  Itinerary.prototype.getVerboseListOfEvents = async function() {
+    try {
+      const events = await sequelize.models.day.findAll({
+        where: {
+          itinerary_id: this.itinerary_id,
+          type: 'event',
+        },
+        include: [
+          {
+            model: sequelize.models.event,
+            include: {
+              model: sequelize.models.place,
+              where: { place_id: { $col: 'event.place_id' } },
+            },
+          },
+        ],
+      });
+      const notes = await sequelize.models.day.findAll({
+        where: {
+          itinerary_id: this.itinerary_id,
+          type: 'note',
+        },
+      });
+      const directions = await sequelize.models.day.findAll({
+        where: {
+          itinerary_id: this.itinerary_id,
+          type: 'directions',
+        },
+      });
+      const directionPlaceIds = directions.map(dir => dir.day_attributes.end_place_id);
+      const directionPlaces = await sequelize.models.place.findAll({
+        attributes: ['place_id', 'longitude', 'latitude', 'name', 'full_address'],
+        where: {
+          place_id: { $in: directionPlaceIds },
+        },
+      });
+      const transformedEvents = transformEventsForApp(events);
+      const transformedNotes = transformNotesForApp(notes);
+      const transformedDirections = transformDirectionsForApp(directions, directionPlaces);
+      return transformedEvents.concat(transformedDirections).concat(transformedNotes);
+    } catch (e) {
+      console.log(e);
     }
   };
 

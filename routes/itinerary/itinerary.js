@@ -81,8 +81,13 @@ module.exports = app => {
       try {
         let itinerary = await models.itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
-          const events = await itinerary.getListOfEvents();
-          res.json(events);
+          if (req.query.verbose === 'true') {
+            const events = await itinerary.getVerboseListOfEvents();
+            res.json(events);
+          } else {
+            const events = await itinerary.getListOfEvents();
+            res.json(events);
+          }
         } else {
           res.status(401).send();
         }

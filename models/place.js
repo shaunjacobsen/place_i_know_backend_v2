@@ -29,10 +29,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  Place.belongsTo(sequelize.models.image, {
-    foreignKey: 'image_id',
-    targetKey: 'image_id',
-  });
+  Place.associations = function(models) {
+    Place.belongsTo(models.image, {
+      foreignKey: 'image_id',
+      targetKey: 'image_id',
+    });
+  };
 
   return Place;
 };

@@ -41,6 +41,8 @@ require('./routes/image/image')(app);
 require('./routes/event/event')(app);
 require('./routes/place/place')(app);
 require('./routes/documents/document')(app);
+require('./routes/documents/officialDocument')(app);
+require('./routes/userLocation/userLocation')(app);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(process.env.PORT, () => {
