@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       duration: { type: DataTypes.INTEGER },
       notes: { type: DataTypes.STRING },
       places: { type: DataTypes.ARRAY(DataTypes.INTEGER), allowNull: false },
+      place_id: { type: DataTypes.INTEGER },
       start_tz: { type: DataTypes.STRING },
       end_tz: { type: DataTypes.STRING },
       price: { type: DataTypes.INTEGER },
@@ -33,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       targetKey: 'image_id',
     });
     Event.hasOne(models.day, { foreignKey: 'event_id' });
+    Event.belongsTo(models.place, { targetKey: 'place_id', foreignKey: 'place_id' });
   };
 
   Event.afterValidate(async (event, options) => {
