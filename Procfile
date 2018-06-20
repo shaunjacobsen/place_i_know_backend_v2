@@ -1,3 +1,3 @@
-web: node app.js
-email_worker: node services/email/email.js
-images_worker: node services/images/cloudinary.js
+web: node dist/app.js
+email_worker: node dist/services/email/email.js
+images_worker: node dist/services/images/cloudinary.js

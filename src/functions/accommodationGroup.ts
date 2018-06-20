@@ -1,5 +1,5 @@
 module.exports = {
-  filterAccommodationGroupData: (accommodationGroups) => {
+  filterAccommodationGroupData: (accommodationGroups: [any]) => {
     let data = [];
     accommodationGroups.forEach(group => {
       let accommodationList = [];

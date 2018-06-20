@@ -2,11 +2,11 @@
   "name": "place-i-know-backend",
   "version": "0.1.0",
   "description": "",
-  "main": "app.js",
+  "main": "dist/app.js",
   "scripts": {
     "test": "NODE_ENV=test jest --watch --runInBand",
-    "dev": "nodemon ./app.js",
-    "start": "node app.js"
+    "dev": "nodemon ./dist/app.js",
+    "start": "node ./dist/app.js"
   },
   "repository": {
     "type": "git",
