@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 
 const { app } = require('./../app');
 const { SessionKey } = require('./../models/sessionKey');
-const { scaffoldAdmin, teardownAdmin, getToken, adminUser } = require ('./seed/adminData');
 const { allImages, populateImages, destroyImages } = require('./seed/imageData');
 const { users, populateUsers, destroyUsers } = require('./seed/userData');
 const { allTrips, populateTrips, destroyTrips } = require('./seed/tripData');

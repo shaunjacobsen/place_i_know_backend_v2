@@ -31,7 +31,7 @@ const populateTrips = async (trips) => {
 
 const destroyTrips = async () => {
   try {
-    await Trip.destroy({ truncate: true });
+    await Trip.destroy();
   } catch (error) {
     console.log('error destroying trips', error);
   }

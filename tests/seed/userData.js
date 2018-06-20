@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const { User } = require('./../../models/user');
-const { SessionKey } = require('./../../models/sessionKey');
+const models = require('./../../models');
 
 const adminUser = {
   profile_id: 1,
@@ -24,7 +23,7 @@ const adminUser = {
   emergency_contact: 'Unlisted',
   image_id: 1,
   role: 'admin',
-}
+};
 
 const userTwo = {
   profile_id: 2,
@@ -46,37 +45,45 @@ const userTwo = {
   emergency_contact: 'Unlisted',
   image_id: 1,
   role: 'user',
-}
+};
 
-const users = [adminUser, userTwo];
+const userThree = {
+  profile_id: 3,
+  first_name: 'Eurydice Colette Clytemnestra Dido Bathsheba Rabelais Patricia',
+  last_name: 'Cocteau Stone',
+  email: 'patsy@vogue.co.uk',
+  address1: '109 Knightsbridge',
+  address2: '',
+  city: 'Belgravia',
+  state: 'London',
+  postal: 'SW1X 7RJ',
+  country: 'United Kingdom',
+  phone: ' +442072355000',
+  phone_abroad: '+442072355000',
+  gender: 'F',
+  birthdate: '1950-10-30',
+  passport_name: 'Patsy Stone',
+  password: 'domandbom456',
+  emergency_contact: 'Eddy Monsoon',
+  image_id: 1,
+  role: 'user',
+};
 
-const populateUsers = async (users) => {
+const users = [adminUser, userTwo, userThree];
+
+const populateUsers = async users => {
   try {
-    await User.bulkCreate(users, {
+    await models.user.bulkCreate(users, {
       individualHooks: true,
     });
-  } catch (error) {
-    
-  }
-}
+  } catch (error) {}
+};
 
 const destroyUsers = async () => {
   try {
-    await User.destroy({ truncate: true });
-    await SessionKey.destroy({ truncate: true });
-  } catch (error) {
-    
-  }
-}
-
-const truncateTokens = () => {
-  return new Promise((resolve, reject) => {
-    SessionKey.destroy({ truncate: true }).then(() => {
-      resolve();
-    }).catch((e) => {
-      reject(e);
-    });
-  });
-}
+    await models.user.destroy();
+    await models.session_key.destroy();
+  } catch (error) {}
+};
 
 module.exports = { users, populateUsers, destroyUsers };

@@ -24,7 +24,7 @@ J'ai voulu découpler le backend du frontend du logiciel, comme il était avec l
 - **Pusher ChatKit** for integrating realtime chat with customers
   - Customers may chat one-on-one with their travel planner, or group chat with all other travellers on their trip
   - Includes presence indicators and realtime typing indicators
-- **RabbitMQ** for sending messages to a queue for processing by **microservices**, responsible for:
+- **RabbitMQ** for sending messages to a queue for processing by **microservices**, using **Heroku dynos**, responsible for:
   - [Sending emails](https://github.com/shaunjacobsen/place_i_know_email_service), such as forgot password, new account, document sharing, and unread chat notifications
   - [Processing images](https://github.com/shaunjacobsen/place_i_know_image_service) with Cloudinary
 
@@ -37,7 +37,7 @@ J'ai voulu découpler le backend du frontend du logiciel, comme il était avec l
 - **Pusher ChatKit** pour le tchat en temps réel
   - Les clients peuvent tchatter en temps réel avec leur planificat/-eur/-rice, ou en groupe avec l'ensemble des voyageurs sur leur voyage
   - Les indicateurs de présence et de saisie de texte y sont compris
-- **RabbitMQ**, pour envoyer et recevoir les messages dans un queue pour le traitement par les **microservices**, qui :
+- **RabbitMQ**, pour envoyer et recevoir les messages dans un queue pour le traitement par les **microservices** hébergés par **Heroku dynos** qui :
   - [Envoyer les emails](https://github.com/shaunjacobsen/place_i_know_email_service), tels que "mot de passe oublié", "nouveau compte", "partage de document", et "messages tchats non lus"
   - Le [traitement d'image](https://github.com/shaunjacobsen/place_i_know_image_service) avec Cloudinary
 

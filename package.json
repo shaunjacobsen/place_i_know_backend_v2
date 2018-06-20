@@ -41,6 +41,7 @@
     "faker": "^4.1.0",
     "morgan": "^1.9.0",
     "nodemon": "^1.17.3",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "typings": "^2.1.1"
   }
 }

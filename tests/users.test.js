@@ -7,6 +7,14 @@ const { SessionKey } = require('./../models/sessionKey');
 const { users, populateUsers, destroyUsers } = require('./seed/userData');
 const { allImages, populateImages, destroyImages } = require('./seed/imageData');
 
+const getAuthToken = async () => {
+  const signInRequest = await request(app).post('/signin').send({
+    email: users[0].email,
+    password: users[0].password,
+  });
+  return signInRequest.headers['x-auth'];
+}
+
 describe('POST /signin', function() {
 
   beforeAll(() => {
@@ -66,23 +74,15 @@ describe('POST /signout', function() {
   });
 
   it('Should return 200 when successfully signed out', async () => {
-    const signInRequest = await request(app).post('/signin').send({
-      email: users[0].email,
-      password: users[0].password,
-    });
-    let assignedToken = signInRequest.headers['x-auth'];
-    const res = await request(app).post('/signout').set('x-auth', assignedToken);
+    const token = await getAuthToken();
+    const res = await request(app).post('/signout').set('x-auth', token);
     expect(res.statusCode).toBe(200);
   });
 
   it('Should remove the token from the database when successfully signed out', async (done) => {
-    const signInRequest = await request(app).post('/signin').send({
-      email: users[0].email,
-      password: users[0].password,
-    });
-    let assignedToken = signInRequest.headers['x-auth'];
-    request(app).post('/signout').set('x-auth', assignedToken).then((res) => {
-      SessionKey.findAndCountAll({ where: { token: assignedToken } }).then((result) => {
+    const token = await getAuthToken();
+    request(app).post('/signout').set('x-auth', token).then((res) => {
+      SessionKey.findAndCountAll({ where: { token: token } }).then((result) => {
         expect(res.statusCode).toBe(200);
         expect(result.count).toBe(0);
         done();
