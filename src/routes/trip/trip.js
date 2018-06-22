@@ -169,7 +169,7 @@ module.exports = app => {
           res.status(401).send();
         }
       } catch (error) {
-        res.status(400).json(error);
+        res.status(400).json(error.message);
       }
     }
   );
@@ -188,7 +188,7 @@ module.exports = app => {
           res.status(401).send();
         }
       } catch (error) {
-        res.status(400).json(error);
+        res.status(400).json(error.message);
       }
     }
   );

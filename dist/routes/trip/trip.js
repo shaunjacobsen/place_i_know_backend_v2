@@ -141,7 +141,7 @@ module.exports = app => {
             }
         }
         catch (error) {
-            res.status(400).json(error);
+            res.status(400).json(error.message);
         }
     }));
     app.get('/trip/:tripId/trains', authenticate, permit('user', 'admin'), (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -156,7 +156,7 @@ module.exports = app => {
             }
         }
         catch (error) {
-            res.status(400).json(error);
+            res.status(400).json(error.message);
         }
     }));
     app.get('/trip/:id/attendees', authenticate, permit('user', 'admin'), (req, res) => __awaiter(this, void 0, void 0, function* () {
