@@ -26,6 +26,8 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         timestamps: false,
     });
-    TrainLeg.belongsTo(sequelize.models.operator, { foreignKey: 'operator_id' });
+    TrainLeg.associations = function (models) {
+        TrainLeg.belongsTo(models.operator, { foreignKey: 'operator_id' });
+    };
     return TrainLeg;
 };
