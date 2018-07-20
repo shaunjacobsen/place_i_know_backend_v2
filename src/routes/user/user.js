@@ -143,4 +143,57 @@ module.exports = app => {
       res.status(401).send();
     }
   });
+
+  app.post('/user', async (req, res) => {
+    const userEmail = req.body.email_address;
+    const matches = await models.user.findAll({
+      where: {
+        email: userEmail,
+      },
+    });
+    if (matches.length > 0) {
+      res.json({ status: 'user_exists' });
+    } else {
+      try {
+        models.user
+          .build({
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            email: req.body.email_address.trim().toLowerCase(),
+            password: req.body.password,
+          })
+          .save()
+          .then(newUser => {
+            if (req.body.create_travel_request) {
+              models.travel_request
+                .build({
+                  user_id: newUser.profile_id,
+                  destinations: req.body.destination,
+                  traveler_type: req.body.whos_traveling,
+                  num_travelers: req.body.total_travelers,
+                  num_adults: req.body.total_adults,
+                  num_children: req.body.total_children,
+                  created_at: new Date(),
+                })
+                .save()
+                .then(async newRequest => {
+                  res.status(201).json({
+                    status: 'success',
+                    user_id: newUser.profile_id,
+                    travel_request_id: newRequest.request_id,
+                    token: await newUser.generateAuthToken(),
+                    first_name: newUser.first_name,
+                    avatar:
+                      'https://res.cloudinary.com/placeiknow/image/upload/v1507692917/faces/basic.png',
+                  });
+                });
+            } else {
+              res.status(201).json({ id: newUser.profile_id });
+            }
+          });
+      } catch (e) {
+        res.status(400).send({ error: e.message });
+      }
+    }
+  });
 };

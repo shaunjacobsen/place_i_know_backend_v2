@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('user', {
-        profile_id: { type: DataTypes.INTEGER, primaryKey: true },
+        profile_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
         first_name: { type: DataTypes.STRING },
         last_name: { type: DataTypes.STRING },
         email: { type: DataTypes.STRING },
