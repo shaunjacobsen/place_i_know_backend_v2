@@ -32,6 +32,7 @@ if (process.env.NODE_ENV === 'development') {
 
 require('./routes/user/user')(app);
 require('./routes/trip/trip')(app);
+require('./routes/trip/travelRequest')(app);
 require('./routes/bookings/accommodation')(app);
 require('./routes/bookings/flight')(app);
 require('./routes/bookings/train')(app);
