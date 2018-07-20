@@ -39,6 +39,7 @@ require('./routes/chat/chat')(app);
 require('./routes/itinerary/itinerary')(app);
 require('./routes/image/image')(app);
 require('./routes/event/event')(app);
+require('./routes/event/eventRating')(app);
 require('./routes/place/place')(app);
 require('./routes/documents/document')(app);
 require('./routes/documents/officialDocument')(app);
