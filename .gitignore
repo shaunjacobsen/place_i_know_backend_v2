@@ -1,5 +1,5 @@
 node_modules/
+dist/
 */config/config.json
 */public/images/
-dist
 yarn-error.log
