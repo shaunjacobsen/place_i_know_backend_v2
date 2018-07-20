@@ -1,4 +1,5 @@
 const express = require('express');
+const moment = require('moment');
 const models = require('./../../models');
 
 const { authenticate, permit } = require('./../../middleware/authenticate');
@@ -42,8 +43,19 @@ module.exports = app => {
           },
         },
       });
-      res.json(itineraries);
-    } catch (e) {}
+      let data = itineraries.map(itinerary => ({
+        user_id: req.user._id,
+        itinerary_id: itinerary.itinerary_id,
+        title: itinerary.title,
+        month_year: moment(itinerary.start_date).format('MMM YYYY'),
+        start_date: itinerary.start_date.toISOString(),
+        end_date: itinerary.end_date.toISOString(),
+        status: "confirmed"
+      }))
+      res.json(data);
+    } catch (e) {
+      res.status(400);
+    }
   });
 
   app.get(
