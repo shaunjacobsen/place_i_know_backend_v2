@@ -125,10 +125,17 @@ module.exports = (sequelize, DataTypes) => {
         include: [
           {
             model: sequelize.models.event,
-            include: {
-              model: sequelize.models.place,
-              where: { place_id: { $col: 'event.place_id' } },
-            },
+            include: [
+              {
+                model: sequelize.models.place,
+                where: { place_id: { $col: 'event.place_id' } },
+                include: { model: sequelize.models.image },
+              },
+              {
+                model: sequelize.models.image,
+                attributes: ['secure_url'],
+              },
+            ],
           },
         ],
       });
@@ -153,7 +160,10 @@ module.exports = (sequelize, DataTypes) => {
       });
       const transformedEvents = transformEventsForApp(events);
       const transformedNotes = transformNotesForApp(notes);
-      const transformedDirections = transformDirectionsForApp(directions, directionPlaces);
+      const transformedDirections = transformDirectionsForApp(
+        directions,
+        directionPlaces
+      );
       return transformedEvents.concat(transformedDirections).concat(transformedNotes);
     } catch (e) {
       console.log(e);

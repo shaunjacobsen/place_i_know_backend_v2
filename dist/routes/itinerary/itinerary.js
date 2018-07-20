@@ -15,7 +15,7 @@ module.exports = app => {
         try {
             let itinerary = yield models.itinerary.findById(req.params.itineraryId);
             if (yield itinerary.isUserAuthorizedToView(req.user)) {
-                data = {
+                let data = {
                     trip_id: itinerary.trip_id,
                     itinerary_id: itinerary.itinerary_id,
                     start_date: itinerary.start_date,
@@ -30,6 +30,33 @@ module.exports = app => {
         }
         catch (error) {
             res.status(400).json(error);
+        }
+    }));
+    app.get('/itineraries', authenticate, permit('user', 'admin'), (req, res) => __awaiter(this, void 0, void 0, function* () {
+        try {
+            let user = yield models.user.findById(req.user._id);
+            let trips = yield models.trip.findByUser(user.profile_id);
+            let tripIds = trips.map(trip => trip.trip_id);
+            let itineraries = yield models.itinerary.findAll({
+                where: {
+                    trip_id: {
+                        $in: tripIds,
+                    },
+                },
+            });
+            let data = itineraries.map(itinerary => ({
+                user_id: req.user._id,
+                itinerary_id: itinerary.itinerary_id,
+                title: itinerary.title,
+                month_year: itinerary.start_date,
+                start_date: itinerary.start_date.toISOString(),
+                end_date: itinerary.end_date.toISOString(),
+                status: "confirmed"
+            }));
+            res.json(data);
+        }
+        catch (e) {
+            res.status(400);
         }
     }));
     app.get('/itinerary/:itineraryId/days', authenticate, permit('user', 'admin'), (req, res) => __awaiter(this, void 0, void 0, function* () {

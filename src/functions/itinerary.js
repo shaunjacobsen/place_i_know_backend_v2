@@ -20,6 +20,15 @@ const reduceDaysToArray = days => {
 };
 
 const transformEventsForApp = dayEvents => {
+  const imageUrl = dayEvent => {
+    if (dayEvent.event.image) {
+      return dayEvent.event.image.secure_url;
+    } else if (dayEvent.event.place.image) {
+      return dayEvent.event.place.image.secure_url;
+    } else {
+      return 'https://res.cloudinary.com/placeiknow/image/upload/v1506621227/no_image_u6pqxs.png';
+    }
+  };
   return dayEvents.map(dayEvent => {
     return {
       display_type: 'event',
@@ -42,7 +51,7 @@ const transformEventsForApp = dayEvents => {
       currency: dayEvent.event.currency,
       prepaid: dayEvent.event.prepaid,
       price_is_approximate: dayEvent.event.price_is_approximate,
-      image_url: dayEvent.event.image_url,
+      image_url: imageUrl(dayEvent),
       place_name: dayEvent.event.place.name,
       place_address: dayEvent.event.place.full_address,
       place_address_1: dayEvent.event.place.address1,
@@ -83,7 +92,9 @@ const transformNotesForApp = notes => {
 
 const transformDirectionsForApp = (directions, places) => {
   return directions.map(direction => {
-    const place = places.filter(place => Number(direction.day_attributes.end_place_id) === place.place_id)[0];
+    const place = places.filter(
+      place => Number(direction.day_attributes.end_place_id) === place.place_id
+    )[0];
     return {
       display_type: 'directions',
       item_id: direction.day_id,
