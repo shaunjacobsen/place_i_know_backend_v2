@@ -14,12 +14,12 @@ module.exports = app => {
         altitude: req.body.altitude,
         precision: req.body.precision,
         heading: req.body.heading,
-        timestamp: new Date().toUTCString,
+        timestamp: new Date().toUTCString(),
       })
       .save()
       .then(location => {
         res.json(location);
       })
-      .catch(e => res.status(400).json({ errors: e }));
+      .catch(e => res.status(400).json({ errors: e.message }));
   });
 };
