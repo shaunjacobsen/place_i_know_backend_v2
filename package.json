@@ -37,6 +37,7 @@
     "pg": "^7.4.1",
     "sequelize": "^4.37.5",
     "sparkpost": "2.1.2",
+    "stripe": "^6.3.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
