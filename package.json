@@ -6,7 +6,9 @@
   "scripts": {
     "test": "NODE_ENV=test jest --watch --runInBand",
     "dev": "nodemon",
-    "start": "node ./dist/app.js"
+    "start": "node ./dist/app.js",
+    "tsc": "tsc",
+    "postinstall": "yarn run tsc"
   },
   "repository": {
     "type": "git",
