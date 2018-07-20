@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "test": "NODE_ENV=test jest --watch --runInBand",
-    "dev": "nodemon ./dist/app.js",
+    "dev": "nodemon",
     "start": "node ./dist/app.js"
   },
   "repository": {
