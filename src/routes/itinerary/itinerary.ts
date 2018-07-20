@@ -13,7 +13,7 @@ module.exports = app => {
       try {
         let itinerary = await models.itinerary.findById(req.params.itineraryId);
         if (await itinerary.isUserAuthorizedToView(req.user)) {
-          data = {
+          let data = {
             trip_id: itinerary.trip_id,
             itinerary_id: itinerary.itinerary_id,
             start_date: itinerary.start_date,
@@ -29,6 +29,22 @@ module.exports = app => {
       }
     }
   );
+
+  app.get('/itineraries', authenticate, permit('user', 'admin'), async (req, res) => {
+    try {
+      let user = await models.user.findById(req.user._id);
+      let trips = await models.trip.findByUser(user.profile_id);
+      let tripIds = trips.map(trip => trip.trip_id);
+      let itineraries = await models.itinerary.findAll({
+        where: {
+          trip_id: {
+            $in: tripIds,
+          },
+        },
+      });
+      res.json(itineraries);
+    } catch (e) {}
+  });
 
   app.get(
     '/itinerary/:itineraryId/days',
