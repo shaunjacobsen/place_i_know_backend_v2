@@ -85,8 +85,12 @@ module.exports = app => {
         let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
           let accommodationGroups = await trip.getListOfAccommodationGroups();
-          const data = filterAccommodationGroupData(accommodationGroups);
-          res.json(data);
+          if (req.query.verbose === 'true') {
+            res.json(accommodationGroups);
+          } else {
+            const data = filterAccommodationGroupData(accommodationGroups);
+            res.json(data);
+          }
         } else {
           res.status(401).send();
         }
@@ -124,8 +128,12 @@ module.exports = app => {
         let trip = await models.trip.findById(req.params.tripId);
         if (await trip.isUserAuthorizedToView(req.user)) {
           let flightGroups = await trip.getListOfFlightGroups();
-          const data = filterFlightGroupData(flightGroups);
-          res.json(data);
+          if (req.query.verbose === 'true') {
+            res.json(flightGroups);
+          } else {
+            const data = filterFlightGroupData(flightGroups);
+            res.json(data);
+          }
         } else {
           res.status(401).send();
         }

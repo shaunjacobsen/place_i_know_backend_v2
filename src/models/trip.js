@@ -177,7 +177,28 @@ module.exports = (sequelize, DataTypes) => {
         include: [
           {
             model: sequelize.models.accommodation,
-            attributes: ['accommodation_id', 'status'],
+            attributes: [
+              'accommodation_id',
+              'status',
+              'star_rating',
+              'check_in',
+              'check_out',
+              'guests',
+              'rooms',
+              'beds',
+              'breakfast_included',
+              'total',
+              'status',
+              'booking_ref',
+              'notes',
+            ],
+            include: {
+              model: sequelize.models.place,
+              include: {
+                model: sequelize.models.image,
+                attributes: ['image_id', 'secure_url'],
+              },
+            },
           },
         ],
       });
@@ -191,7 +212,52 @@ module.exports = (sequelize, DataTypes) => {
       return await sequelize.models.flight_group.findAll({
         where: { trip_id: this.trip_id },
         include: [
-          { model: sequelize.models.flight, attributes: ['flight_id', 'status'] },
+          {
+            model: sequelize.models.flight,
+            attributes: [
+              'flight_id',
+              'status',
+              'total',
+              'passenger_count',
+              'booking_ref',
+            ],
+            include: {
+              model: sequelize.models.flight_leg,
+              attributes: [
+                'flight_leg_id',
+                'flight_id',
+                'flight_no',
+                'duration',
+                'departure_time',
+                'arrival_time',
+                'departure_airport_code',
+                'departure_airport',
+                'arrival_airport_code',
+                'arrival_airport',
+                'fare_code',
+                'fare_class',
+                'meal_type',
+                'wifi_on_board',
+                'first_bag_fee',
+                'second_bag_fee',
+                'notes',
+              ],
+              include: {
+                model: sequelize.models.operator,
+                attributes: [
+                  'operator_id',
+                  'name',
+                  'shortcode',
+                  'website',
+                  'customer_service_num',
+                ],
+                include: {
+                  model: sequelize.models.image,
+                  attributes: ['image_id', 'secure_url'],
+                },
+              },
+            },
+          },
         ],
       });
     } catch (e) {
