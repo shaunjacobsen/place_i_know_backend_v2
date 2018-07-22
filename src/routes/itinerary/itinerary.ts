@@ -45,6 +45,7 @@ module.exports = app => {
       });
       let data = itineraries.map(itinerary => ({
         user_id: req.user._id,
+        trip_id: itinerary.trip_id,
         itinerary_id: itinerary.itinerary_id,
         title: itinerary.title,
         month_year: moment(itinerary.start_date).format('MMM YYYY'),
