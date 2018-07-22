@@ -25,7 +25,7 @@ module.exports = app => {
         );
       });
       Promise.all(updates)
-        .then(res.status(200))
+        .then(res.status(200).send())
         .catch(e => res.status(400).json({ error: e.message }));
     } catch (error) {
       res.status(400).json(error);
