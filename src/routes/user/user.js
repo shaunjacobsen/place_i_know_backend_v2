@@ -25,6 +25,7 @@ module.exports = app => {
       const user = await models.user.findByCredentials(req.body.email, req.body.password);
       if (!user) {
         res.status(401).json({ error: 'INCORRECT_CREDENTIALS' });
+        return;
       }
       const token = await user.generateAuthToken();
       const userDetails = await getBaseUserDetails(user);

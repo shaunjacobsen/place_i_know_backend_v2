@@ -1,0 +1,17 @@
+version: '3'
+services:
+  ampq:
+    image: rabbitmq:3.7.14-alpine
+  postgres:
+    build:
+      context: ./docker/
+      dockerfile: pg-docker
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_PASSWORD=root
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:

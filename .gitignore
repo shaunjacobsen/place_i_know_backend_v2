@@ -3,3 +3,4 @@ dist/
 */config/config.json
 */public/images/
 yarn-error.log
+docker/ssl/

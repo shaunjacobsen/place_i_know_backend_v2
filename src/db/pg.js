@@ -2,7 +2,11 @@ const Sequelize = require('sequelize');
 require('./../config/config');
 
 let isInTestEnvironment = () => {
-  if (process.env.NODE_ENV === 'test') {
+  return process.env.NODE_ENV === 'test';
+};
+
+let shouldUseSSL = () => {
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
     return false;
   } else {
     return true;
@@ -11,10 +15,7 @@ let isInTestEnvironment = () => {
 
 const sequelize = new Sequelize(process.env.PG_DB_URI, {
   dialect: 'postgres',
-  logging: isInTestEnvironment(),
-  dialectOptions: {
-    ssl: isInTestEnvironment(),
-  },
+  logging: !isInTestEnvironment(),
 });
 
 sequelize

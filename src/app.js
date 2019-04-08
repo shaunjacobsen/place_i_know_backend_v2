@@ -45,6 +45,7 @@ require('./routes/place/place')(app);
 require('./routes/documents/document')(app);
 require('./routes/documents/officialDocument')(app);
 require('./routes/userLocation/userLocation')(app);
+require('./routes/proposedItinerary/proposedItinerary')(app);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(process.env.PORT, () => {
