@@ -25,7 +25,7 @@
     "amqplib": "^0.5.2",
     "aws-sdk": "^2.237.1",
     "axios": "^0.18.0",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^3.0.1",
     "body-parser": "^1.18.2",
     "cloudinary": "^1.11.0",
     "compression": "^1.7.2",

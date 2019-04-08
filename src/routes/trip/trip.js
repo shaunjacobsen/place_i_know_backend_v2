@@ -7,9 +7,13 @@ const { filterFlightGroupData } = require('./../../functions/flightGroup');
 const { filterTrainGroupData } = require('./../../functions/trainGroup');
 
 const flattenArray = arr => {
-  return arr.reduce((a, b) => {
-    return a.concat(b);
-  });
+  if (arr.length > 0) {
+    return arr.reduce((a, b) => {
+      return a.concat(b);
+    });
+  } else {
+    return [];
+  }
 };
 
 module.exports = app => {
@@ -71,7 +75,7 @@ module.exports = app => {
           res.status(401).send();
         }
       } catch (error) {
-        res.status(400).json(error);
+        res.status(400).json(error.message);
       }
     }
   );

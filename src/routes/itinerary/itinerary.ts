@@ -51,8 +51,9 @@ module.exports = app => {
         month_year: moment(itinerary.start_date).format('MMM YYYY'),
         start_date: itinerary.start_date.toISOString(),
         end_date: itinerary.end_date.toISOString(),
-        status: "confirmed"
-      }))
+        status: 'confirmed',
+        is_sample: false,
+      }));
       res.json(data);
     } catch (e) {
       res.status(400);
