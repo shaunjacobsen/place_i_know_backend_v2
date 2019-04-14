@@ -3,10 +3,10 @@ module.exports = (sequelize, DataTypes) => {
     'chat_room',
     {
       chat_room_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      room_id: { type: DataTypes.INTEGER },
+      participants: { type: DataTypes.ARRAY(DataTypes.INTEGER) },
+      room_id: { type: DataTypes.STRING },
       title: { type: DataTypes.STRING },
       created: { type: DataTypes.TIME },
-      created_by: { type: DataTypes.INTEGER },
     },
     {
       timestamps: false,
@@ -80,15 +80,20 @@ module.exports = (sequelize, DataTypes) => {
 
   ChatRoom.prototype.createNewMessage = async function(userId, message) {
     try {
-      const newMessage = await sequelize.models.chat_message.build({
-        pusher_message_id: message.pusher_message_id,
-        room_id: this.chat_room_id,
-        pusher_room_id: this.room_id,
-        from_user_id: userId,
-        message: message.body,
-        sent_at: new Date().getTime(),
-      }).save();
-      const markReadForSender = await this.setUserReadMessage(userId, newMessage.pusher_message_id);
+      const newMessage = await sequelize.models.chat_message
+        .build({
+          pusher_message_id: message.pusher_message_id,
+          room_id: this.chat_room_id,
+          pusher_room_id: this.room_id,
+          from_user_id: userId,
+          message: message.body,
+          sent_at: new Date().getTime(),
+        })
+        .save();
+      const markReadForSender = await this.setUserReadMessage(
+        userId,
+        newMessage.pusher_message_id
+      );
     } catch (e) {
       return e.message;
     }

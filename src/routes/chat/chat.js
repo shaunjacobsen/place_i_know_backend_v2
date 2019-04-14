@@ -1,4 +1,3 @@
-const express = require('express');
 const axios = require('axios');
 const models = require('./../../models');
 const { chatkit } = require('./../../external/chat/chatKit');
@@ -11,21 +10,87 @@ module.exports = app => {
     res.status(authData.status).send(authData.body);
   });
 
-  app.get(
-    '/chat/:userId/rooms',
-    authenticate,
-    permit('user', 'admin'),
-    async (req, res) => {
-      try {
-        const response = await chatkit.getUserJoinableRooms({
-          userId: req.params.userId,
-        });
-        res.status(200).json(response);
-      } catch (e) {
-        res.status(e.status).json(e);
+  app.get('/chat/user', authenticate, permit('user', 'admin'), (req, res) => {
+    chatkit
+      .getUser({ id: req.user._id })
+      .then(_ => res.status(204).send())
+      .catch(_ => {
+        chatkit
+          .createUser({
+            id: String(req.user._id),
+            name: req.user.first_name + ' ' + req.user.last_name,
+            avatarURL: req.user.image.secure_url,
+          })
+          .then(() => {
+            res.status(201).send();
+          })
+          .catch(e => res.status(400).send());
+      });
+  });
+
+  app.get('/chat/rooms', authenticate, permit('user', 'admin'), async (req, res) => {
+    try {
+      const rooms = await chatkit.getUserRooms({
+        userId: String(req.user._id),
+      });
+      if (rooms.length === 0) {
+        chatkit
+          .createRoom({
+            creatorId: String(req.user._id),
+            name: 'Private Chat',
+            userIds: [String(req.user._id), 1],
+            isPrivate: true,
+          })
+          .then(room => {
+            models.chat_room
+              .create({
+                room_id: room.id,
+                title: 'Private Chat',
+                participants: [req.user._id],
+                created: new Date(),
+              })
+              .then(dbRoom => {
+                models.chat_user_room
+                  .create({
+                    user_id: req.user._id,
+                    chat_room_id: dbRoom.chat_room_id,
+                  })
+                  .then(_ => {
+                    models.chat_user_room
+                      .create({
+                        user_id: 1,
+                        chat_room_id: dbRoom.chat_room_id,
+                      })
+                      .then(_ => {
+                        res.status(201).json([room]);
+                        return;
+                      })
+                      .catch(e => {
+                        res.status(400).send();
+                        return;
+                      });
+                  })
+                  .catch(e => {
+                    res.status(400).send();
+                    return;
+                  });
+              })
+              .catch(e => {
+                res.status(400).send();
+                return;
+              });
+          })
+          .catch(e => {
+            res.status(400).send();
+            return;
+          });
+      } else {
+        res.status(200).json(rooms);
       }
+    } catch (e) {
+      res.status(e.status).send();
     }
-  );
+  });
 
   app.get(
     '/chat/room/:pusherRoomId',
@@ -56,12 +121,13 @@ module.exports = app => {
           where: { room_id: req.params.pusherRoomId },
         });
         if (await chatRoom.isUserAuthorizedForRoomActions(req.user)) {
-          const resp = await chatRoom.setUserReadMessage(req.user._id, req.params.messageId);
+          const resp = await chatRoom.setUserReadMessage(
+            req.user._id,
+            req.params.messageId
+          );
           res.json(resp);
         }
-      } catch (e) {
-
-      }
+      } catch (e) {}
     }
   );
 
@@ -78,9 +144,7 @@ module.exports = app => {
           const resp = await chatRoom.createNewMessage(req.user._id, req.body);
           res.json(resp);
         }
-      } catch (e) {
-
-      }
+      } catch (e) {}
     }
   );
 

@@ -2,7 +2,11 @@ module.exports = (sequelize, DataTypes) => {
   const ChatUserRoom = sequelize.define(
     'chat_user_room',
     {
-      chat_user_room_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+      chat_user_room_id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       user_id: { type: DataTypes.INTEGER },
       chat_room_id: { type: DataTypes.INTEGER },
       last_read_message: { type: DataTypes.INTEGER },
@@ -10,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       timestamps: false,
+      tableName: 'chat_user_room',
     }
   );
 
