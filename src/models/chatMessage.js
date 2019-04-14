@@ -4,8 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       message_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       pusher_message_id: { type: DataTypes.INTEGER },
-      room_id: { type: DataTypes.INTEGER },
-      pusher_room_id: { type: DataTypes.INTEGER },
+      room_id: { type: DataTypes.STRING },
+      pusher_room_id: { type: DataTypes.STRING },
       from_user_id: { type: DataTypes.INTEGER },
       message: { type: DataTypes.STRING },
       sent_at: { type: DataTypes.BIGINT },
